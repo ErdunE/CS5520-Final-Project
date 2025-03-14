@@ -34,7 +34,7 @@
             android:id="@+id/homeTextView"
             android:layout_width="265dp"
             android:layout_height="98dp"
-            android:fontFamily="@font/raleway_medium"
+            android:fontFamily="sans-serif-medium"
             android:text="Grow habits, grow your garden, grow yourself!"
             android:textAlignment="center"
             android:textSize="24sp"
