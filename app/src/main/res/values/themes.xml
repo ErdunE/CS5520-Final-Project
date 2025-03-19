@@ -6,4 +6,15 @@
     </style>
 
     <style name="Theme.FinalProject_Group_1" parent="Base.Theme.FinalProject_Group_1" />
+
+    <style name="CustomNavBar" parent="Theme.MaterialComponents">
+        <item name="colorPrimary">@color/white</item>
+        <item name="colorOnPrimary">@color/dark_green</item>
+        <item name="colorSurface">@color/dark_green</item>
+    </style>
+
+
+    <style name="icon_rounded">
+        <item name="cornerSize">50%</item>
+    </style>
 </resources>
