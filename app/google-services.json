@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "1071139599408",
+    "firebase_url": "https://habitend-cs5520g1-default-rtdb.firebaseio.com",
+    "project_id": "habitend-cs5520g1",
+    "storage_bucket": "habitend-cs5520g1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1071139599408:android:e2a8d36375599e299b29f5",
+        "android_client_info": {
+          "package_name": "edu.northeastern.finalproject_group_1"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC2rgtnEFxqpf2FvY2poFCKPrt8ZJrMkWA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
