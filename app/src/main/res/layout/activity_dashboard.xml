@@ -57,8 +57,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/testControlsLayout" />
 
-
-
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:id="@+id/coordinatorLayout"
         android:layout_width="match_parent"
@@ -67,30 +65,18 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
+        <!-- BottomAppBar (Only for background styling & FloatingActionButton) -->
         <com.google.android.material.bottomappbar.BottomAppBar
             android:id="@+id/bottomAppBar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="75dp"
             android:layout_gravity="bottom"
             android:background="@color/white"
+            android:theme="@style/CustomNavBar"
             app:fabCradleMargin="10dp"
-            app:fabCradleRoundedCornerRadius="50dp"
-            android:theme="@style/CustomNavBar">
+            app:fabCradleRoundedCornerRadius="50dp" />
 
-            <com.google.android.material.bottomnavigation.BottomNavigationView
-                android:id="@+id/bottomNavigationView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="16dp"
-                android:background="@android:color/transparent"
-                app:backgroundTint="#FFFFFF"
-                app:elevation="0dp"
-                app:labelVisibilityMode="labeled"
-                app:menu="@menu/nav_menu"
-                app:itemIconSize="28dp"
-                android:theme="@style/CustomNavBar"/>
-        </com.google.android.material.bottomappbar.BottomAppBar>
-
+        <!-- Floating Action Button -->
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab"
             android:layout_width="wrap_content"
@@ -98,8 +84,24 @@
             android:backgroundTint="#679273"
             android:src="@drawable/baseline_add_24"
             app:layout_anchor="@id/bottomAppBar"
-            app:maxImageSize="40dp"
+            app:maxImageSize="24dp"
             app:shapeAppearanceOverlay="@style/icon_rounded" />
+
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/bottomNavigationView"
+            android:layout_width="match_parent"
+            android:layout_height="90dp"
+            android:layout_gravity="bottom"
+            android:background="@android:color/transparent"
+            android:paddingTop="10dp"
+            app:backgroundTint="#FFFFFF"
+            app:elevation="0dp"
+            app:itemIconSize="24dp"
+            app:itemPaddingBottom="5dp"
+            app:itemPaddingTop="9dp"
+            app:labelVisibilityMode="labeled"
+            app:menu="@menu/nav_menu"
+            android:theme="@style/CustomNavBar"/>
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
