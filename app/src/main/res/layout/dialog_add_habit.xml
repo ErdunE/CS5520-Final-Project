@@ -140,6 +140,7 @@
 
                     <Button
                         android:id="@+id/btnChooseIcon"
+                        android:backgroundTint="#679273"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -151,6 +152,7 @@
 
                     <Button
                         android:id="@+id/btnUploadIcon"
+                        android:backgroundTint="#679273"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -167,11 +169,13 @@
                     android:textSize="14sp"
                     android:layout_marginBottom="8dp" />
 
-                <LinearLayout
+                <com.google.android.flexbox.FlexboxLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical">
+                    android:layout_marginBottom="8dp"
+                    app:flexWrap="wrap"
+                    app:justifyContent="flex_start"
+                    app:alignItems="center">
 
                     <!-- Preset color circles -->
                     <View
@@ -179,6 +183,7 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:layout_marginEnd="8dp"
+                        android:layout_marginBottom="8dp"
                         android:backgroundTint="#F44336"
                         android:background="@drawable/color_circle" />
 
@@ -187,6 +192,7 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:layout_marginEnd="8dp"
+                        android:layout_marginBottom="8dp"
                         android:backgroundTint="#FF9800"
                         android:background="@drawable/color_circle" />
 
@@ -195,6 +201,7 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:layout_marginEnd="8dp"
+                        android:layout_marginBottom="8dp"
                         android:backgroundTint="#FFEB3B"
                         android:background="@drawable/color_circle" />
 
@@ -203,6 +210,7 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:layout_marginEnd="8dp"
+                        android:layout_marginBottom="8dp"
                         android:backgroundTint="#4CAF50"
                         android:background="@drawable/color_circle" />
 
@@ -211,6 +219,7 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:layout_marginEnd="8dp"
+                        android:layout_marginBottom="8dp"
                         android:backgroundTint="#009688"
                         android:background="@drawable/color_circle" />
 
@@ -219,6 +228,7 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:layout_marginEnd="8dp"
+                        android:layout_marginBottom="8dp"
                         android:backgroundTint="#2196F3"
                         android:background="@drawable/color_circle" />
 
@@ -227,6 +237,7 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:layout_marginEnd="8dp"
+                        android:layout_marginBottom="8dp"
                         android:backgroundTint="#9C27B0"
                         android:background="@drawable/color_circle" />
 
@@ -235,6 +246,7 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:layout_marginEnd="8dp"
+                        android:layout_marginBottom="8dp"
                         android:backgroundTint="#212121"
                         android:background="@drawable/color_circle" />
 
@@ -242,8 +254,11 @@
                         android:id="@+id/btnMoreColors"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="More" />
-                </LinearLayout>
+                        android:layout_marginBottom="8dp"
+                        android:text="More Option"
+                        android:textColor="@android:color/white"
+                        android:backgroundTint="#679273"/>
+                </com.google.android.flexbox.FlexboxLayout>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
@@ -289,6 +304,7 @@
 
                     <Button
                         android:id="@+id/btnStartDate"
+                        android:backgroundTint="#679273"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Select Date" />
@@ -310,6 +326,7 @@
 
                     <Button
                         android:id="@+id/btnEndDate"
+                        android:backgroundTint="#679273"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Select Date" />
@@ -458,7 +475,9 @@
                     <androidx.appcompat.widget.SwitchCompat
                         android:id="@+id/switchReminder"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" />
+                        android:layout_height="wrap_content"
+                        app:thumbTint="@color/switch_thumb_color"
+                        app:trackTint="@color/switch_track_color"/>
                 </LinearLayout>
 
                 <!-- Reminder Time List -->
@@ -469,20 +488,21 @@
                     android:orientation="vertical"
                     android:visibility="gone">
 
-                    <!-- Add Time Button -->
-                    <Button
-                        android:id="@+id/btnAddReminder"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="+ Add Reminder Time"
-                        android:layout_marginBottom="8dp"/>
-
                     <!-- Placeholder for reminder times -->
                     <LinearLayout
                         android:id="@+id/reminderTimeList"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"/>
+
+                    <!-- Add Time Button -->
+                    <Button
+                        android:id="@+id/btnAddReminder"
+                        android:backgroundTint="#679273"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="+ Add Reminder Time"
+                        android:layout_marginBottom="8dp"/>
                 </LinearLayout>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
