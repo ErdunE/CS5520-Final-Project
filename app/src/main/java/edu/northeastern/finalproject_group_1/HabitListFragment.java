@@ -1,16 +1,24 @@
 package edu.northeastern.finalproject_group_1;
 
+import android.graphics.Canvas;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,8 +58,10 @@ public class HabitListFragment extends Fragment {
         // Long press Helper
         ItemTouchHelper.Callback callback = new ItemTouchHelper.SimpleCallback(
                 ItemTouchHelper.UP | ItemTouchHelper.DOWN,
-                0
+                ItemTouchHelper.LEFT
         ) {
+            private final ColorDrawable background = new ColorDrawable(0xFFFF5555);
+            private Drawable deleteIcon;
             @Override
             public boolean onMove(@NonNull RecyclerView recyclerView,
                                   @NonNull RecyclerView.ViewHolder viewHolder,
@@ -69,11 +79,67 @@ public class HabitListFragment extends Fragment {
 
             @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                if (direction == ItemTouchHelper.LEFT) {
+                    int position = viewHolder.getAdapterPosition();
+                    showDeleteConfirmationDialog(position);
+                }
             }
 
             @Override
             public boolean isLongPressDragEnabled() {
                 return true;
+            }
+
+            @Override
+            public void onChildDraw(@NonNull Canvas c,
+                                    @NonNull RecyclerView recyclerView,
+                                    @NonNull RecyclerView.ViewHolder viewHolder,
+                                    float dX, float dY,
+                                    int actionState,
+                                    boolean isCurrentlyActive) {
+
+                super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
+
+                if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
+                    View itemView = viewHolder.itemView;
+                    float translationX = dX;
+
+                    if (translationX < 0) {
+                        background.setBounds(
+                                (int) (itemView.getRight() + translationX),
+                                itemView.getTop(),
+                                itemView.getRight(),
+                                itemView.getBottom()
+                        );
+                        background.draw(c);
+                    }
+
+                    float absDx = Math.abs(translationX);
+                    int threshold = 150;
+
+                    if (deleteIcon == null) {
+                        deleteIcon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_delete);
+                    }
+
+                    if (deleteIcon != null && translationX < 0 && absDx > threshold) {
+                        int iconSizePx = (int) TypedValue.applyDimension(
+                                TypedValue.COMPLEX_UNIT_DIP,
+                                32,
+                                getResources().getDisplayMetrics()
+                        );
+
+                        int itemHeight = itemView.getHeight();
+                        int iconMargin = (itemHeight - iconSizePx) / 2;
+
+                        int iconLeft = itemView.getRight() - iconMargin - iconSizePx - 20;
+                        int iconRight = itemView.getRight() - iconMargin - 20;
+                        int iconTop = itemView.getTop() + (itemHeight - iconSizePx) / 2;
+                        int iconBottom = iconTop + iconSizePx;
+
+                        deleteIcon.setBounds(iconLeft, iconTop, iconRight, iconBottom);
+                        deleteIcon.draw(c);
+                    }
+                }
             }
         };
 
@@ -95,5 +161,36 @@ public class HabitListFragment extends Fragment {
         }
     }
 
+    private void showDeleteConfirmationDialog(int position) {
+        Habit habit = habitList.get(position);
 
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Delete Habit")
+                .setMessage("Are you sure you want to delete '" + habit.getTitle() + "'?")
+                .setPositiveButton("Delete", (dialog, which) -> {
+                    habitList.remove(position);
+                    habitAdapter.notifyItemRemoved(position);
+                    showUndoSnackbar(habit, position);
+                })
+                .setNegativeButton("Cancel", (dialog, which) -> {
+                    habitAdapter.notifyItemChanged(position);
+                })
+                .setCancelable(false)
+                .show();
+    }
+
+    private void showUndoSnackbar(Habit deletedHabit, int deletedPosition) {
+        View rootView = getView();
+        if (rootView == null) return;
+
+        Snackbar snackbar = Snackbar.make(rootView,
+                "Habit deleted: " + deletedHabit.getTitle(),
+                Snackbar.LENGTH_LONG);
+
+        snackbar.setAction("Undo", v -> {
+            habitList.add(deletedPosition, deletedHabit);
+            habitAdapter.notifyItemInserted(deletedPosition);
+        });
+        snackbar.show();
+    }
 }
