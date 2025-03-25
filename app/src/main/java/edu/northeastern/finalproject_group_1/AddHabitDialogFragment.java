@@ -1,26 +1,43 @@
 package edu.northeastern.finalproject_group_1;
 
 import android.app.Dialog;
-import android.content.DialogInterface;
+import android.app.TimePickerDialog;
+import java.util.Calendar;
+import java.util.Locale;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.SwitchCompat;
 import androidx.fragment.app.DialogFragment;
 
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.NumberPicker;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
 
+import com.google.android.flexbox.FlexboxLayout;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
+
+import java.lang.reflect.Field;
+
 public class AddHabitDialogFragment extends DialogFragment {
 
-    private EditText titleEditText;
-    private EditText descriptionEditText;
     private boolean isEditMode = false;
     private int position = -1;
     private String oldTitle = "";
     private String oldDescription = "";
+
+    private final String[] repeatOptions = {"None", "Daily", "Weekly", "Monthly", "Yearly"};
 
     public AddHabitDialogFragment() {
     }
@@ -32,9 +49,6 @@ public class AddHabitDialogFragment extends DialogFragment {
         LayoutInflater inflater = requireActivity().getLayoutInflater();
         View dialogView = inflater.inflate(R.layout.dialog_add_habit, null);
 
-        titleEditText = dialogView.findViewById(R.id.editHabitTitle);
-        descriptionEditText = dialogView.findViewById(R.id.editHabitDescription);
-
         if (getArguments() != null) {
             isEditMode = getArguments().getBoolean("isEditMode", false);
             position = getArguments().getInt("position", -1);
@@ -42,27 +56,170 @@ public class AddHabitDialogFragment extends DialogFragment {
             oldDescription = getArguments().getString("description", "");
         }
 
+        ImageButton btnCancel = dialogView.findViewById(R.id.btnCancel);
+        ImageButton btnSave = dialogView.findViewById(R.id.btnSave);
+        TextView tvDialogTitle = dialogView.findViewById(R.id.tvDialogTitle);
+
+        EditText titleEditText = dialogView.findViewById(R.id.editHabitTitle);
+        EditText descriptionEditText = dialogView.findViewById(R.id.editHabitDescription);
+
+        TextView tvRepeatSelected = dialogView.findViewById(R.id.tvRepeatSelected);
+        LinearLayout repeatPickerContainer = dialogView.findViewById(R.id.repeatPickerContainer);
+
+        TextView textIntervalUnit = dialogView.findViewById(R.id.textIntervalUnit);
+        FlexboxLayout weekDaySelector = dialogView.findViewById(R.id.weekDaySelector);
+
+        TextView tvEveryValue = dialogView.findViewById(R.id.tvEveryValue);
+        LinearLayout everyPickerContainer = dialogView.findViewById(R.id.everyPickerContainer);
+
+        SwitchCompat switchReminder = dialogView.findViewById(R.id.switchReminder);
+        LinearLayout reminderContainer = dialogView.findViewById(R.id.reminderContainer);
+        LinearLayout reminderTimeList = dialogView.findViewById(R.id.reminderTimeList);
+        Button btnAddReminder = dialogView.findViewById(R.id.btnAddReminder);
+
+        repeatPickerContainer.setOnClickListener(v -> {
+            BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(requireContext());
+            View sheetView = LayoutInflater.from(getContext()).inflate(R.layout.bottom_sheet_repeat, null);
+            bottomSheetDialog.setContentView(sheetView);
+
+            ListView listView = sheetView.findViewById(R.id.repeatListView);
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(),
+                    android.R.layout.simple_list_item_1, repeatOptions);
+            listView.setAdapter(adapter);
+
+            listView.setOnItemClickListener((parent, view, position, id) -> {
+                String selected = repeatOptions[position];
+                tvRepeatSelected.setText(selected);
+                bottomSheetDialog.dismiss();
+
+                switch (selected) {
+                    case "Daily":
+                        textIntervalUnit.setText("Day");
+                        weekDaySelector.setVisibility(View.GONE);
+                        break;
+                    case "Weekly":
+                        textIntervalUnit.setText("Week");
+                        weekDaySelector.setVisibility(View.VISIBLE);
+                        weekDaySelector.getLayoutParams().height = ViewGroup.LayoutParams.WRAP_CONTENT;
+                        weekDaySelector.requestLayout();
+                        setupWeekdayPickers(dialogView);
+                        break;
+                    case "Monthly":
+                        textIntervalUnit.setText("Month");
+                        weekDaySelector.setVisibility(View.GONE);
+                        break;
+                    case "Yearly":
+                        textIntervalUnit.setText("Year");
+                        weekDaySelector.setVisibility(View.GONE);
+                        break;
+                    default:
+                        textIntervalUnit.setText("");
+                        weekDaySelector.setVisibility(View.GONE);
+                        break;
+                }
+            });
+
+            bottomSheetDialog.show();
+        });
+
+
         if (isEditMode) {
+            tvDialogTitle.setText("Edit Habit");
             titleEditText.setText(oldTitle);
             descriptionEditText.setText(oldDescription);
+        } else {
+            tvDialogTitle.setText("Add Habit");
         }
 
-        builder.setView(dialogView)
-                .setTitle(isEditMode ? "Edit Habit" : "Add Habit")
-                .setPositiveButton(isEditMode ? "Save" : "Add", (dialog, which) -> {
-                    String title = titleEditText.getText().toString().trim();
-                    String description = descriptionEditText.getText().toString().trim();
+        btnCancel.setOnClickListener(v -> dismiss());
 
-                    if (isEditMode) {
-                        ((DashboardActivity) requireActivity()).updateHabitInList(position, title, description);
-                    } else {
-                        Habit newHabit = new Habit(title, description, false,
-                                R.drawable.baseline_checkbox_24, "Daily", 0);
-                        ((DashboardActivity) requireActivity()).addHabitToList(newHabit);
-                    }
-                })
-                .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
+        btnSave.setOnClickListener(v -> {
+            String newTitle = titleEditText.getText().toString().trim();
+            String newDescription = descriptionEditText.getText().toString().trim();
+
+            if (isEditMode) {
+                ((DashboardActivity) requireActivity()).updateHabitInList(position, newTitle, newDescription);
+            } else {
+                Habit newHabit = new Habit(newTitle, newDescription, false,
+                        R.drawable.baseline_checkbox_24, "Daily", 0);
+                ((DashboardActivity) requireActivity()).addHabitToList(newHabit);
+            }
+            dismiss();
+        });
+
+        everyPickerContainer.setOnClickListener(v -> {
+            BottomSheetDialog numberDialog = new BottomSheetDialog(requireContext());
+            View sheetView = LayoutInflater.from(getContext()).inflate(R.layout.bottom_sheet_every_picker, null);
+            numberDialog.setContentView(sheetView);
+
+            NumberPicker picker = sheetView.findViewById(R.id.everyNumberPicker);
+            picker.setMinValue(1);
+            picker.setMaxValue(30);
+
+            try {
+                picker.setValue(Integer.parseInt(tvEveryValue.getText().toString()));
+            } catch (NumberFormatException e) {
+                picker.setValue(1);
+            }
+
+            picker.setOnValueChangedListener((np, oldVal, newVal) -> {
+                tvEveryValue.setText(String.valueOf(newVal));
+                numberDialog.dismiss();
+            });
+
+            numberDialog.show();
+        });
+
+        // Toggle visibility
+        switchReminder.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            reminderContainer.setVisibility(isChecked ? View.VISIBLE : View.GONE);
+        });
+
+        // Add reminder time
+        btnAddReminder.setOnClickListener(v -> {
+            Calendar now = Calendar.getInstance();
+            int hour = now.get(Calendar.HOUR_OF_DAY);
+            int minute = now.get(Calendar.MINUTE);
+
+            TimePickerDialog timePickerDialog = new TimePickerDialog(requireContext(),
+                    (view, selectedHour, selectedMinute) -> {
+                        String time = String.format(Locale.getDefault(), "%02d:%02d", selectedHour, selectedMinute);
+                        TextView timeView = new TextView(requireContext());
+                        timeView.setText(time);
+                        timeView.setPadding(16, 8, 16, 8);
+                        timeView.setBackgroundResource(R.drawable.bg_weekday_unselected);
+                        timeView.setTextSize(16);
+                        reminderTimeList.addView(timeView);
+                    }, hour, minute, true);
+
+            timePickerDialog.show();
+        });
+
+        builder.setView(dialogView);
 
         return builder.create();
+    }
+
+    private void setupWeekdayPickers(View dialogView) {
+        int[] dayIds = {
+                R.id.dayMon, R.id.dayTue, R.id.dayWed,
+                R.id.dayThu, R.id.dayFri, R.id.daySat, R.id.daySun
+        };
+
+        for (int id : dayIds) {
+            TextView dayView = dialogView.findViewById(id);
+            dayView.setSelected(true);
+            dayView.setBackgroundResource(R.drawable.bg_weekday_selected);
+            dayView.setTextColor(getResources().getColor(android.R.color.white));
+
+            dayView.setOnClickListener(v -> {
+                v.setSelected(!v.isSelected());
+                v.setBackgroundResource(v.isSelected() ?
+                        R.drawable.bg_weekday_selected :
+                        R.drawable.bg_weekday_unselected);
+                ((TextView) v).setTextColor(getResources().getColor(
+                        v.isSelected() ? android.R.color.white : android.R.color.black));
+            });
+        }
     }
 }

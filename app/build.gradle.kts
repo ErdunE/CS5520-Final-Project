@@ -45,4 +45,6 @@ dependencies {
     androidTestImplementation(libs.espresso.core)
     // Import the Firebase BoM
     implementation(platform("com.google.firebase:firebase-bom:33.10.0"))
+    // Flexbox layout library for horizontal/vertical wrapping (used in Repeat -> Weekdays)
+    implementation("com.google.android.flexbox:flexbox:3.0.0")
 }
