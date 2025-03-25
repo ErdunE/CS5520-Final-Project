@@ -13,6 +13,7 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 public class DashboardActivity extends AppCompatActivity {
 
@@ -27,6 +28,13 @@ public class DashboardActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_dashboard);
 
+        // Add button Click Listener
+        FloatingActionButton fab = findViewById(R.id.fab);
+        fab.setOnClickListener(v -> {
+            showAddHabitDialog();
+        });
+
+        // Bottom Navbar
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -56,10 +64,48 @@ public class DashboardActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+
+        // Initial ViewPager2
         viewPager = findViewById(R.id.viewPager);
         pagerAdapter = new DashboardPagerAdapter(this);
         viewPager.setAdapter(pagerAdapter);
-
         viewPager.setOrientation(ViewPager2.ORIENTATION_VERTICAL);
+    }
+
+    // Pop up dialog after click add button
+    private void showAddHabitDialog() {
+        AddHabitDialogFragment dialog = new AddHabitDialogFragment();
+        dialog.show(getSupportFragmentManager(), "AddHabitDialog");
+    }
+
+    // Add new habit
+    public void addHabitToList(Habit newHabit) {
+        HabitListFragment fragment = (HabitListFragment) getSupportFragmentManager()
+                .findFragmentByTag("f1");
+
+        if (fragment != null) {
+            fragment.addHabit(newHabit);
+        }
+    }
+
+    public void showEditHabitDialog(Habit habit, int position) {
+        AddHabitDialogFragment dialog = new AddHabitDialogFragment();
+        Bundle args = new Bundle();
+        args.putBoolean("isEditMode", true);
+        args.putInt("position", position);
+        args.putString("title", habit.getTitle());
+        args.putString("description", habit.getDescription());
+        dialog.setArguments(args);
+
+        dialog.show(getSupportFragmentManager(), "EditHabitDialog");
+    }
+
+    public void updateHabitInList(int position, String newTitle, String newDescription) {
+        HabitListFragment fragment = (HabitListFragment) getSupportFragmentManager()
+                .findFragmentByTag("f1");
+
+        if (fragment != null) {
+            fragment.updateHabit(position, newTitle, newDescription);
+        }
     }
 }

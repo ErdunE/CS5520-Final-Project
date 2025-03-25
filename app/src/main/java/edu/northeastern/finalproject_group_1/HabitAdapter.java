@@ -51,7 +51,18 @@ public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitViewHol
             notifyItemChanged(position);
         });
 
-        holder.itemView.setOnClickListener(v -> showHabitDialog(v.getContext(), habit));
+        // Short press for edit
+        holder.itemView.setOnClickListener(v -> {
+            int pos = holder.getAdapterPosition();
+            showHabitDialog(v.getContext(), habit, pos);
+        });
+
+        // Long press for reorder
+        holder.itemView.setOnLongClickListener(v -> {
+            int pos = holder.getAdapterPosition();
+            Toast.makeText(v.getContext(), "Long press on item " + pos, Toast.LENGTH_SHORT).show();
+            return true;
+        });
     }
 
     @Override
@@ -73,13 +84,12 @@ public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitViewHol
         }
     }
 
-    private void showHabitDialog(Context context, Habit habit) {
+    private void showHabitDialog(Context context, Habit habit, int position) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle("Habit Options")
                 .setMessage("What do you want to do with '" + habit.getTitle() + "'?")
                 .setPositiveButton("Edit", (dialog, which) -> {
-                    // TODO: Edit Habit Detail
-                    Toast.makeText(context, "Edit feature coming soon!", Toast.LENGTH_SHORT).show();
+                    ((DashboardActivity) context).showEditHabitDialog(habit, position);
                 })
                 .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss())
                 .setCancelable(true)

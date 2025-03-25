@@ -26,6 +26,12 @@ public class Habit {
     public String getSchedule() { return schedule; }
     public int getReward() { return reward; }
 
+    public void setTitle(String newTitle) {
+        this.title = newTitle;
+    }
+    public void setDescription(String newDescription) {
+        this.description = newDescription;
+    }
     public void setCompleted(boolean completed) {
         this.isCompleted = completed;
     }
