@@ -58,18 +58,12 @@ public class MarketplaceActivity extends AppCompatActivity {
         goldBalance = findViewById(R.id.goldBalanceTV);
         gardenButton = findViewById(R.id.gardenButton);
 
-        updateGridSpan();
-
         // Setup garden FAB
         gardenButton.setOnClickListener(v -> {
-            Log.d("GardenFAB", "Garden button clicked!");
-            showMarketplace(false);
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.fragment_garden, new GardenFragment())
-                    .addToBackStack(null)
-                    .commit();
+                    Intent intent = new Intent(MarketplaceActivity.this, DashboardActivity.class);
+                    startActivity(intent);
         });
+        updateGridSpan();
 
         // nav menu
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
@@ -128,8 +122,7 @@ public class MarketplaceActivity extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
                     userGold = snapshot.getValue(Integer.class);
-                    Log.d("MarketplaceActivity", "User gold loaded: " + userGold);
-                    goldBalance.setText("Gold: " + userGold);
+                    goldBalance.setText(userGold);
                 }
             }
             @Override
@@ -146,8 +139,6 @@ public class MarketplaceActivity extends AppCompatActivity {
                 allMarketplaceItems.clear();
                 for (DataSnapshot itemSnapshot : snapshot.getChildren()) {
                     MarketplaceItem item = itemSnapshot.getValue(MarketplaceItem.class);
-
-                    Log.d("MarketplaceActivity", "Firebase item: " + item.getName() + " - imageId in DB: " + itemSnapshot.child("imageId").getValue());
 
                     if (itemSnapshot.child("imageId").exists()) {
                         Object imageIdObj = itemSnapshot.child("imageId").getValue();
@@ -174,6 +165,7 @@ public class MarketplaceActivity extends AppCompatActivity {
     private void selectDailyItems() {
         Collections.shuffle(allMarketplaceItems, new Random());
         dailyMarketplaceItems.clear();
+
         for (int i = 0; i < DAILY_ITEM_COUNT && i < allMarketplaceItems.size(); i++) {
             dailyMarketplaceItems.add(allMarketplaceItems.get(i));
         }
@@ -202,7 +194,7 @@ public class MarketplaceActivity extends AppCompatActivity {
 
                 userGold -= item.getPrice();
                 goldReference.setValue(userGold);
-                goldBalance.setText("Gold: " + userGold);
+                goldBalance.setText(userGold);
                 Toast.makeText(this, "Purchased: " + item.getName(), Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(this, "Error purchasing item!", Toast.LENGTH_SHORT).show();

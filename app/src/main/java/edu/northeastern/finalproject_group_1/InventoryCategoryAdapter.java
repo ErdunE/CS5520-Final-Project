@@ -25,10 +25,7 @@ public class InventoryCategoryAdapter extends RecyclerView.Adapter<InventoryCate
     private Context context;
     private List<String> categories;
     private Map<String, List<MarketplaceItem>> categoryItemMap;
-//    private Set<String> expandedCategories = new HashSet<>();
-
     private Map<String, Boolean> expandedMap = new HashMap<>();
-
 
     public InventoryCategoryAdapter(Context context, Map<String, List<MarketplaceItem>> originalCategoryItemMap) {
         this.context = context;

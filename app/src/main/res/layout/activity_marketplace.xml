@@ -24,15 +24,34 @@
         android:layout_gravity="center_horizontal"
         android:paddingBottom="15dp"
         android:text="Marketplace"
-        android:textSize="20sp"
+        android:textSize="16sp"
         android:textStyle="bold" />
 
 
-    <TextView
-        android:id="@+id/goldBalanceTV"
-        android:layout_width="85dp"
+    <LinearLayout
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="TextView" />
+        android:layout_gravity="end"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingBottom="8dp">
+
+        <TextView
+            android:id="@+id/goldBalanceTV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textSize="16dp"
+            android:textStyle="bold"
+            android:paddingEnd="4dp"/>
+
+        <ImageView
+            android:id="@+id/goldImage"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:src="@drawable/gold"
+            android:contentDescription="Gold Icon"/>
+    </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewInventory"

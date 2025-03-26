@@ -38,9 +38,7 @@ public class InventoryActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.recyclerViewInventory);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-
         inventoryRef = FirebaseDatabase.getInstance().getReference("GARDENDATA").child(userId).child("inventory");
-
         inventoryRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {

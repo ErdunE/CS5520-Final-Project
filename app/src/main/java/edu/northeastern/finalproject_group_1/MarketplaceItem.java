@@ -39,7 +39,7 @@ public class MarketplaceItem {
         return description;
     }
 
-    public Boolean isRare(){
+    public boolean isRare(){
         return isRare;
     }
 
@@ -59,13 +59,9 @@ public class MarketplaceItem {
 
         };
 
-        Log.d("MarketplaceItem", "Image ID received: " + imageId);
-
         if (imageId < 1 || imageId > imageResources.length) {
-            Log.e("MarketplaceItem", "Invalid imageId: " + imageId + ", using default image.");
             return R.drawable.default_image;
         }
-        Log.d("MarketplaceItem", "Mapped to drawable: " + imageResources[imageId - 1]);
         return imageResources[imageId-1];
     }
 }

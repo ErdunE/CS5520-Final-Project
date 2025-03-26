@@ -36,7 +36,6 @@ public class MarketplaceAdapter extends RecyclerView.Adapter<MarketplaceAdapter.
         return new ViewHolder(view);
     }
 
-
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         MarketplaceItem item = marketplaceItems.get(position);
