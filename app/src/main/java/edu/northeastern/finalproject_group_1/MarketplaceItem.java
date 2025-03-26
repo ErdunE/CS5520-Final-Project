@@ -50,7 +50,13 @@ public class MarketplaceItem {
                 R.drawable.bonsai, // 2
                 R.drawable.succulent, // 3
                 R.drawable.fern, // 4
-                R.drawable.zen_stones  // 5
+                R.drawable.zen_stones,  // 5
+                R.drawable.cherry_blossom, // 6
+                R.drawable.bridge, // 7
+                R.drawable.rock_fountain, // 8
+                R.drawable.tulips, // 9
+                R.drawable.orange_tree, //10
+
         };
 
         Log.d("MarketplaceItem", "Image ID received: " + imageId);

@@ -8,13 +8,13 @@
    >
 
     <ImageView
-        android:id="@+id/itemImage"
+        android:id="@+id/inventoryItemIcon"
         android:layout_width="80dp"
         android:layout_height="80dp"
         android:scaleType="centerCrop" />
 
     <TextView
-        android:id="@+id/itemName"
+        android:id="@+id/inventoryItemName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="16sp"

@@ -17,9 +17,16 @@ public class MarketplaceAdapter extends RecyclerView.Adapter<MarketplaceAdapter.
     private Context context;
     private List<MarketplaceItem> marketplaceItems;
 
-    public MarketplaceAdapter(Context context, List<MarketplaceItem> marketplaceItems) {
+    private OnBuyClickListener onBuyClickListener;
+
+    public interface OnBuyClickListener {
+        void onBuy(MarketplaceItem item);
+    }
+
+    public MarketplaceAdapter(Context context, List<MarketplaceItem> marketplaceItems, OnBuyClickListener onBuyClickListener)    {
         this.context = context;
         this.marketplaceItems = marketplaceItems;
+        this.onBuyClickListener = onBuyClickListener;
     }
 
     @NonNull
@@ -38,7 +45,9 @@ public class MarketplaceAdapter extends RecyclerView.Adapter<MarketplaceAdapter.
         holder.itemPrice.setText("Price: " + item.getPrice() + " coins");
 
         holder.buyButton.setOnClickListener(v -> {
-            // Handle purchase logic
+            if ( onBuyClickListener != null) {
+                onBuyClickListener.onBuy(item);
+            }
         });
     }
 
@@ -53,8 +62,8 @@ public class MarketplaceAdapter extends RecyclerView.Adapter<MarketplaceAdapter.
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            itemImage = itemView.findViewById(R.id.itemImage);
-            itemName = itemView.findViewById(R.id.itemName);
+            itemImage = itemView.findViewById(R.id.inventoryItemIcon);
+            itemName = itemView.findViewById(R.id.inventoryItemName);
             itemPrice = itemView.findViewById(R.id.itemPrice);
             buyButton = itemView.findViewById(R.id.buyButton);
         }
