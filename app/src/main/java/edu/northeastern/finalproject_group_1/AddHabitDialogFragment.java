@@ -26,6 +26,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.NumberPicker;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 
@@ -135,11 +136,27 @@ public class AddHabitDialogFragment extends DialogFragment {
             tvDialogTitle.setText("Add Habit");
         }
 
-        btnCancel.setOnClickListener(v -> dismiss());
+        btnCancel.setOnClickListener(v -> {
+            new AlertDialog.Builder(requireContext())
+                    .setTitle("Discard Changes?")
+                    .setMessage("Are you sure you want to discard all changes?")
+                    .setPositiveButton("Discard", (dialogInterface, which) -> {
+                        dismiss();
+                    })
+                    .setNegativeButton("Cancel", (dialogInterface, which) -> {
+                        dialogInterface.dismiss();
+                    })
+                    .show();
+        });
 
         btnSave.setOnClickListener(v -> {
             String newTitle = titleEditText.getText().toString().trim();
             String newDescription = descriptionEditText.getText().toString().trim();
+
+            if (newTitle.isEmpty()) {
+                Toast.makeText(requireContext(), "Please enter a title", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
             if (isEditMode) {
                 ((DashboardActivity) requireActivity()).updateHabitInList(position, newTitle, newDescription);
@@ -148,6 +165,7 @@ public class AddHabitDialogFragment extends DialogFragment {
                         R.drawable.baseline_checkbox_24, "Daily", 0);
                 ((DashboardActivity) requireActivity()).addHabitToList(newHabit);
             }
+
             dismiss();
         });
 
