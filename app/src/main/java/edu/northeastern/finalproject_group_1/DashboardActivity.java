@@ -4,10 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.Spinner;
-import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -15,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -24,14 +21,8 @@ public class DashboardActivity extends AppCompatActivity {
 
     private ViewPager2 viewPager;
     private DashboardPagerAdapter pagerAdapter;
-
-    BottomNavigationView bottomNavigationView;
-    private GardenView gardenView;
+    private BottomNavigationView bottomNavigationView;
     private FloatingActionButton fab;
-
-    // Declare spinner and button for testing
-    private Spinner plantSelector;
-    private Button testGrowButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,21 +32,11 @@ public class DashboardActivity extends AppCompatActivity {
 
         // Initialize views
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
-        gardenView = findViewById(R.id.gardenView);
+        viewPager = findViewById(R.id.viewPager);
         fab = findViewById(R.id.fab);
-
-        // Initialize test controls
-        plantSelector = findViewById(R.id.plantSelector);
-        testGrowButton = findViewById(R.id.testGrowButton);
 
         // Set up navigation
         setupNavigation();
-
-        // Set up garden
-        setupGarden();
-
-        // Set up test controls
-        setupTestControls();
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.statsTV), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -65,6 +46,14 @@ public class DashboardActivity extends AppCompatActivity {
     }
 
     private void setupNavigation() {
+        // Initialize viewpager and adapter
+        pagerAdapter = new DashboardPagerAdapter(this);
+        viewPager.setAdapter(pagerAdapter);
+
+        // Set viewpager orientation
+        viewPager.setOrientation(ViewPager2.ORIENTATION_VERTICAL);
+
+        // Set up bottom navigation
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -87,78 +76,21 @@ public class DashboardActivity extends AppCompatActivity {
             }
         });
 
-        // Set up FAB to add new plants
+        // Set up FAB to add new plants when in garden view
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Add a new plant
-                addNewPlant();
-            }
-        });
-        viewPager = findViewById(R.id.viewPager);
-        pagerAdapter = new DashboardPagerAdapter(this);
-        viewPager.setAdapter(pagerAdapter);
+                // Check if we're in the garden view (position 0)
+                if (viewPager.getCurrentItem() == 0) {
+                    // Get current fragment
+                    Fragment currentFragment = getSupportFragmentManager()
+                            .findFragmentByTag("f" + viewPager.getCurrentItem());
 
-        viewPager.setOrientation(ViewPager2.ORIENTATION_VERTICAL);
-    }
-
-    private void setupGarden() {
-        // Add some initial plants for testing
-        gardenView.addPlant("Daily Exercise");
-        gardenView.addPlant("Reading");
-        gardenView.addPlant("Meditation");
-    }
-
-    private void addNewPlant() {
-        // In a real application, this would be connected to the habits list
-        // For now, just add a placeholder plant
-        if (gardenView.getPlantCount() < 5) {
-            gardenView.addPlant("New Habit " + (gardenView.getPlantCount() + 1));
-            Toast.makeText(this, "Added new plant!", Toast.LENGTH_SHORT).show();
-
-            // Update the plant selector
-            updatePlantSelector();
-        } else {
-            Toast.makeText(this, "Garden is full! Complete existing habits first.", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private void setupTestControls() {
-        // Initial setup of the plant selector
-        updatePlantSelector();
-
-        // Set up test grow button
-        testGrowButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                int selectedPosition = plantSelector.getSelectedItemPosition();
-                if (selectedPosition >= 0 && selectedPosition < gardenView.getPlantCount()) {
-                    gardenView.growPlant(selectedPosition);
-                    Toast.makeText(DashboardActivity.this,
-                            "Plant " + (selectedPosition + 1) + " grew!",
-                            Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(DashboardActivity.this,
-                            "Please select a plant to grow",
-                            Toast.LENGTH_SHORT).show();
+                    if (currentFragment instanceof GardenFragment) {
+                        ((GardenFragment) currentFragment).addNewPlant();
+                    }
                 }
             }
         });
-    }
-
-    private void updatePlantSelector() {
-        // Create a list of plant names for the spinner
-        String[] plantItems = new String[gardenView.getPlantCount()];
-        for (int i = 0; i < gardenView.getPlantCount(); i++) {
-            plantItems[i] = "Plant " + (i + 1);
-        }
-
-        // Create adapter for spinner
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_item, plantItems);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
-        // Apply adapter to spinner
-        plantSelector.setAdapter(adapter);
     }
 }

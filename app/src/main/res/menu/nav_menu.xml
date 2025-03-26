@@ -14,7 +14,9 @@
         />
 
     <item
-        android:title=""/>
+        android:id="@+id/placeholder"
+        android:title=""
+        android:enabled="false"/>
 
     <item
         android:id="@+id/Stats"
