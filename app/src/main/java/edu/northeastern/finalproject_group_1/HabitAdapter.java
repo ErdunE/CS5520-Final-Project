@@ -16,10 +16,15 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
 public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitViewHolder> {
+    public interface OnHabitCheckListener {
+        void onHabitCheckChanged(int position, boolean isChecked);
+    }
     private List<Habit> habitList;
+    private OnHabitCheckListener checkListener;
 
-    public HabitAdapter(List<Habit> habitList) {
+    public HabitAdapter(List<Habit> habitList, OnHabitCheckListener checkListener) {
         this.habitList = habitList;
+        this.checkListener = checkListener;
     }
 
     @NonNull
@@ -33,13 +38,9 @@ public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitViewHol
     public void onBindViewHolder(@NonNull HabitViewHolder holder, int position) {
         Habit habit = habitList.get(position);
 
-        // Set title
         holder.title.setText(habit.getTitle());
-        // Set description
         holder.description.setText(habit.getDescription());
-        // Set icon
         holder.icon.setImageResource(habit.getIcon());
-        // set checkbox status
         holder.checkBox.setOnCheckedChangeListener(null);
         holder.checkBox.setChecked(habit.isCompleted());
 
@@ -47,17 +48,19 @@ public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitViewHol
 
         // checkbox logic
         holder.checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            habit.setCompleted(isChecked);
-            notifyItemChanged(position);
+            if (checkListener != null) {
+                int currentPosition = holder.getAdapterPosition();
+                checkListener.onHabitCheckChanged(currentPosition, isChecked);
+            }
         });
 
-        // Short press for edit
+        // Edit
         holder.itemView.setOnClickListener(v -> {
             int pos = holder.getAdapterPosition();
             showHabitDialog(v.getContext(), habit, pos);
         });
 
-        // Long press for reorder
+        // Long press
         holder.itemView.setOnLongClickListener(v -> {
             int pos = holder.getAdapterPosition();
             Toast.makeText(v.getContext(), "Long press on item " + pos, Toast.LENGTH_SHORT).show();
@@ -100,9 +103,11 @@ public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitViewHol
         if (habit.isCompleted()) {
             holder.title.setTextColor(Color.GRAY);
             holder.description.setTextColor(Color.GRAY);
+            holder.icon.setColorFilter(Color.GRAY);
         } else {
             holder.title.setTextColor(Color.BLACK);
             holder.description.setTextColor(Color.BLACK);
+            holder.icon.setColorFilter(null);
         }
     }
 }

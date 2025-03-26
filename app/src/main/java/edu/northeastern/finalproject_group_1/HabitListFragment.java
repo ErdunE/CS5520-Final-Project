@@ -23,7 +23,7 @@ import com.google.android.material.snackbar.Snackbar;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HabitListFragment extends Fragment {
+public class HabitListFragment extends Fragment implements HabitAdapter.OnHabitCheckListener{
 
     private RecyclerView habitRecyclerView;
     private HabitAdapter habitAdapter;
@@ -51,8 +51,16 @@ public class HabitListFragment extends Fragment {
                 R.drawable.baseline_water_drop_24, "Daily", 10));
         habitList.add(new Habit("Exercise", "30 minutes workout", false,
                 R.drawable.baseline_fitness_center_24, "Daily", 20));
+        habitList.add(new Habit("Drink Water", "Drink 8 glasses of water", false,
+                R.drawable.baseline_water_drop_24, "Daily", 10));
+        habitList.add(new Habit("Exercise", "30 minutes workout", false,
+                R.drawable.baseline_fitness_center_24, "Daily", 20));
+        habitList.add(new Habit("Drink Water", "Drink 8 glasses of water", false,
+                R.drawable.baseline_water_drop_24, "Daily", 10));
+        habitList.add(new Habit("Exercise", "30 minutes workout", false,
+                R.drawable.baseline_fitness_center_24, "Daily", 20));
 
-        habitAdapter = new HabitAdapter(habitList);
+        habitAdapter = new HabitAdapter(habitList, this);
         habitRecyclerView.setAdapter(habitAdapter);
 
         // Long press Helper
@@ -145,6 +153,26 @@ public class HabitListFragment extends Fragment {
 
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(callback);
         itemTouchHelper.attachToRecyclerView(habitRecyclerView);
+    }
+
+    @Override
+    public void onHabitCheckChanged(int fromPos, boolean isChecked) {
+        // 拿到 Habit
+        Habit habit = habitList.get(fromPos);
+        // 更新它的完成状态
+        habit.setCompleted(isChecked);
+
+        // 1) 从原位置移除
+        habitList.remove(fromPos);
+        // 2) 把它加到末尾
+        habitList.add(habit);
+        // 新位置就是 list.size()-1
+        int toPos = habitList.size() - 1;
+
+        // 3) 用 RecyclerView 提供的“移动动画”功能
+        habitAdapter.notifyItemMoved(fromPos, toPos);
+        // 如果需要刷新末尾那项的样式
+        habitAdapter.notifyItemChanged(toPos);
     }
 
     public void addHabit(Habit newHabit) {
