@@ -1,9 +1,11 @@
 package edu.northeastern.finalproject_group_1;
 
+import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
 
@@ -55,6 +57,10 @@ public class AddHabitDialogFragment extends DialogFragment {
     private ImageView iconPreviewImage;
     private FrameLayout iconPreviewContainer;
     private Uri croppedUri = null;
+    private Button btnStartDate;
+    private Button btnEndDate;
+    private Calendar startDate = Calendar.getInstance();
+    private Calendar endDate = Calendar.getInstance();
     private int selectedColor = Color.BLACK;
 
 
@@ -181,7 +187,6 @@ public class AddHabitDialogFragment extends DialogFragment {
             tvDialogTitle.setText("Edit Habit");
             titleEditText.setText(oldTitle);
             descriptionEditText.setText(oldDescription);
-            // TODO: edit icon
         } else {
             tvDialogTitle.setText("Add Habit");
         }
@@ -313,6 +318,10 @@ public class AddHabitDialogFragment extends DialogFragment {
             timePickerDialog.show();
         });
 
+        btnStartDate = dialogView.findViewById(R.id.btnStartDate);
+        btnEndDate = dialogView.findViewById(R.id.btnEndDate);
+        btnStartDate.setOnClickListener(v -> showDatePickerDialog(startDate, btnStartDate));
+        btnEndDate.setOnClickListener(v -> showDatePickerDialog(endDate, btnEndDate));
         setupPresetColorPickers(dialogView);
         builder.setView(dialogView);
 
@@ -422,5 +431,18 @@ public class AddHabitDialogFragment extends DialogFragment {
                 }
             });
         }
+    }
+
+    private void showDatePickerDialog(Calendar calendar, Button button) {
+        new DatePickerDialog(requireContext(),
+                (view, year, month, dayOfMonth) -> {
+                    calendar.set(year, month, dayOfMonth);
+                    String formattedDate = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(calendar.getTime());
+                    button.setText(formattedDate);
+                },
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH)
+        ).show();
     }
 }
