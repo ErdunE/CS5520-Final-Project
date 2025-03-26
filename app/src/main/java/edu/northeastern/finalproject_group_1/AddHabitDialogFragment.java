@@ -20,6 +20,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -29,6 +30,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.flexbox.FlexboxLayout;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
@@ -41,11 +44,12 @@ public class AddHabitDialogFragment extends DialogFragment {
     private int position = -1;
     private String oldTitle = "";
     private String oldDescription = "";
+    private int selectedIconResId = IconData.getDefaultIcon();
+
 
     private final String[] repeatOptions = {"None", "Daily", "Weekly", "Monthly", "Yearly"};
 
-    public AddHabitDialogFragment() {
-    }
+    public AddHabitDialogFragment() {}
 
     @NonNull
     @Override
@@ -80,7 +84,18 @@ public class AddHabitDialogFragment extends DialogFragment {
         SwitchCompat switchReminder = dialogView.findViewById(R.id.switchReminder);
         LinearLayout reminderContainer = dialogView.findViewById(R.id.reminderContainer);
         LinearLayout reminderTimeList = dialogView.findViewById(R.id.reminderTimeList);
+
         Button btnAddReminder = dialogView.findViewById(R.id.btnAddReminder);
+        FrameLayout iconPreviewContainer = dialogView.findViewById(R.id.iconPreviewContainer);
+        ImageView iconPreviewImage = dialogView.findViewById(R.id.iconPreviewImage);
+        ImageView iconCancelButton = dialogView.findViewById(R.id.iconCancelButton);
+        Button btnChooseIcon = dialogView.findViewById(R.id.btnChooseIcon);
+
+        iconCancelButton.setOnClickListener(v -> {
+            iconPreviewImage.setImageDrawable(null);
+            iconPreviewContainer.setVisibility(View.GONE);
+            selectedIconResId = -1;
+        });
 
         repeatPickerContainer.setOnClickListener(v -> {
             BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(requireContext());
@@ -132,9 +147,12 @@ public class AddHabitDialogFragment extends DialogFragment {
             tvDialogTitle.setText("Edit Habit");
             titleEditText.setText(oldTitle);
             descriptionEditText.setText(oldDescription);
+            // TODO: edit icon
         } else {
             tvDialogTitle.setText("Add Habit");
         }
+
+        btnChooseIcon.setOnClickListener(v -> showIconBottomSheet(iconPreviewImage, iconPreviewContainer));
 
         btnCancel.setOnClickListener(v -> {
             new AlertDialog.Builder(requireContext())
@@ -161,8 +179,9 @@ public class AddHabitDialogFragment extends DialogFragment {
             if (isEditMode) {
                 ((DashboardActivity) requireActivity()).updateHabitInList(position, newTitle, newDescription);
             } else {
+                int iconToUse = (selectedIconResId != -1) ? selectedIconResId : IconData.getDefaultIcon();
                 Habit newHabit = new Habit(newTitle, newDescription, false,
-                        R.drawable.baseline_checkbox_24, "Daily", 0);
+                        iconToUse, "Daily", 0);
                 ((DashboardActivity) requireActivity()).addHabitToList(newHabit);
             }
 
@@ -276,5 +295,25 @@ public class AddHabitDialogFragment extends DialogFragment {
                         v.isSelected() ? android.R.color.white : android.R.color.black));
             });
         }
+    }
+
+    private void showIconBottomSheet(ImageView iconPreviewImage, FrameLayout iconPreviewContainer) {
+        BottomSheetDialog iconDialog = new BottomSheetDialog(requireContext());
+        View sheetView = LayoutInflater.from(getContext()).inflate(R.layout.bottom_sheet_choose_icon, null);
+        iconDialog.setContentView(sheetView);
+
+        RecyclerView recyclerView = sheetView.findViewById(R.id.iconRecyclerView);
+        recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 4));
+
+        IconGridAdapter adapter = new IconGridAdapter(IconData.ICON_RES_IDS, iconResId -> {
+            selectedIconResId = iconResId;
+            iconPreviewImage.setImageResource(iconResId);
+            iconPreviewContainer.setVisibility(View.VISIBLE);
+            iconDialog.dismiss();
+        });
+
+        recyclerView.setAdapter(adapter);
+
+        iconDialog.show();
     }
 }
