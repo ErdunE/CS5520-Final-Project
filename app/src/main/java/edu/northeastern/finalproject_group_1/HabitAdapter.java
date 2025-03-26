@@ -2,6 +2,7 @@ package edu.northeastern.finalproject_group_1;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,9 +41,13 @@ public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitViewHol
 
         holder.title.setText(habit.getTitle());
         holder.description.setText(habit.getDescription());
-        holder.icon.setImageResource(habit.getIcon());
         holder.checkBox.setOnCheckedChangeListener(null);
         holder.checkBox.setChecked(habit.isCompleted());
+        if (habit.getCustomIconUri() != null && !habit.getCustomIconUri().isEmpty()) {
+            holder.icon.setImageURI(Uri.parse(habit.getCustomIconUri()));
+        } else {
+            holder.icon.setImageResource(habit.getIcon());
+        }
 
         updateHabitUI(holder, habit);
 

@@ -2,16 +2,20 @@ package edu.northeastern.finalproject_group_1;
 
 import android.app.Dialog;
 import android.app.TimePickerDialog;
+
+import java.io.File;
 import java.util.Calendar;
 import java.util.Locale;
 
+import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.fragment.app.DialogFragment;
-
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,6 +37,8 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+
+import com.yalantis.ucrop.UCrop;
 import com.google.android.flexbox.FlexboxLayout;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 
@@ -45,6 +51,11 @@ public class AddHabitDialogFragment extends DialogFragment {
     private String oldTitle = "";
     private String oldDescription = "";
     private int selectedIconResId = IconData.getDefaultIcon();
+    private static final int REQUEST_PICK_IMAGE = 1001;
+    private static final int REQUEST_CROP_IMAGE = 1002;
+    private ImageView iconPreviewImage;
+    private FrameLayout iconPreviewContainer;
+    private Uri croppedUri = null;
 
 
     private final String[] repeatOptions = {"None", "Daily", "Weekly", "Monthly", "Yearly"};
@@ -86,11 +97,12 @@ public class AddHabitDialogFragment extends DialogFragment {
         LinearLayout reminderTimeList = dialogView.findViewById(R.id.reminderTimeList);
 
         Button btnAddReminder = dialogView.findViewById(R.id.btnAddReminder);
-        FrameLayout iconPreviewContainer = dialogView.findViewById(R.id.iconPreviewContainer);
-        ImageView iconPreviewImage = dialogView.findViewById(R.id.iconPreviewImage);
         ImageView iconCancelButton = dialogView.findViewById(R.id.iconCancelButton);
         Button btnChooseIcon = dialogView.findViewById(R.id.btnChooseIcon);
+        Button btnUploadIcon = dialogView.findViewById(R.id.btnUploadIcon);
 
+        iconPreviewContainer = dialogView.findViewById(R.id.iconPreviewContainer);
+        iconPreviewImage = dialogView.findViewById(R.id.iconPreviewImage);
         iconCancelButton.setOnClickListener(v -> {
             iconPreviewImage.setImageDrawable(null);
             iconPreviewContainer.setVisibility(View.GONE);
@@ -153,6 +165,7 @@ public class AddHabitDialogFragment extends DialogFragment {
         }
 
         btnChooseIcon.setOnClickListener(v -> showIconBottomSheet(iconPreviewImage, iconPreviewContainer));
+        btnUploadIcon.setOnClickListener(v -> pickImageFromGallery());
 
         btnCancel.setOnClickListener(v -> {
             new AlertDialog.Builder(requireContext())
@@ -170,6 +183,7 @@ public class AddHabitDialogFragment extends DialogFragment {
         btnSave.setOnClickListener(v -> {
             String newTitle = titleEditText.getText().toString().trim();
             String newDescription = descriptionEditText.getText().toString().trim();
+            String customUri = (selectedIconResId == -1 && croppedUri != null) ? croppedUri.toString() : null;
 
             if (newTitle.isEmpty()) {
                 Toast.makeText(requireContext(), "Please enter a title", Toast.LENGTH_SHORT).show();
@@ -180,8 +194,15 @@ public class AddHabitDialogFragment extends DialogFragment {
                 ((DashboardActivity) requireActivity()).updateHabitInList(position, newTitle, newDescription);
             } else {
                 int iconToUse = (selectedIconResId != -1) ? selectedIconResId : IconData.getDefaultIcon();
-                Habit newHabit = new Habit(newTitle, newDescription, false,
-                        iconToUse, "Daily", 0);
+                Habit newHabit = new Habit(
+                        newTitle,
+                        newDescription,
+                        false,
+                        iconToUse,
+                        "Daily",
+                        0,
+                        customUri
+                );
                 ((DashboardActivity) requireActivity()).addHabitToList(newHabit);
             }
 
@@ -315,5 +336,41 @@ public class AddHabitDialogFragment extends DialogFragment {
         recyclerView.setAdapter(adapter);
 
         iconDialog.show();
+    }
+
+    private void pickImageFromGallery() {
+        Intent intent = new Intent(Intent.ACTION_PICK);
+        intent.setType("image/*");
+        startActivityForResult(intent, REQUEST_PICK_IMAGE);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (data == null) return;
+
+        if (requestCode == REQUEST_PICK_IMAGE) {
+            Uri sourceUri = data.getData();
+            Uri destinationUri = Uri.fromFile(new File(requireContext().getCacheDir(), "cropped.png"));
+
+            UCrop.Options options = new UCrop.Options();
+            options.setCircleDimmedLayer(false);
+            options.setShowCropGrid(false);
+            options.setHideBottomControls(true);
+            options.setCompressionFormat(Bitmap.CompressFormat.PNG);
+
+            UCrop.of(sourceUri, destinationUri)
+                    .withAspectRatio(1, 1)
+                    .withMaxResultSize(512, 512)
+                    .withOptions(options)
+                    .start(requireActivity(), this, REQUEST_CROP_IMAGE);
+        } else if (requestCode == REQUEST_CROP_IMAGE) {
+            croppedUri = UCrop.getOutput(data);
+            if (croppedUri != null) {
+                iconPreviewImage.setImageURI(croppedUri);
+                iconPreviewContainer.setVisibility(View.VISIBLE);
+                selectedIconResId = -1;
+            }
+        }
     }
 }
