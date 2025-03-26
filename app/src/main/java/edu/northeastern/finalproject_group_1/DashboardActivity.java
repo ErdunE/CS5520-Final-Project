@@ -107,22 +107,23 @@ public class DashboardActivity extends AppCompatActivity {
             }
         });
 
-        // Set up FAB to add new plants when in garden view
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Check if we're in the garden view (position 0)
-                if (viewPager.getCurrentItem() == 0) {
-                    // Get current fragment
-                    Fragment currentFragment = getSupportFragmentManager()
-                            .findFragmentByTag("f" + viewPager.getCurrentItem());
-
-                    if (currentFragment instanceof GardenFragment) {
-                        ((GardenFragment) currentFragment).addNewPlant();
-                    }
-                }
-            }
-        });
+        // There was added by Alp for add new plants, but after discussed we decide use the add button for add new habits, just in case, left the old code right there, but need to be cleaned before final submission
+//        // Set up FAB to add new plants when in garden view
+//        fab.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                // Check if we're in the garden view (position 0)
+//                if (viewPager.getCurrentItem() == 0) {
+//                    // Get current fragment
+//                    Fragment currentFragment = getSupportFragmentManager()
+//                            .findFragmentByTag("f" + viewPager.getCurrentItem());
+//
+//                    if (currentFragment instanceof GardenFragment) {
+//                        ((GardenFragment) currentFragment).addNewPlant();
+//                    }
+//                }
+//            }
+//        });
 
         // Test code for reminder, current + 10s
         Calendar testTime = Calendar.getInstance();
