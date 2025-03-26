@@ -49,4 +49,6 @@ dependencies {
     implementation("com.google.android.flexbox:flexbox:3.0.0")
     // Edit user uploaded photo/icon
     implementation("com.github.yalantis:ucrop:2.2.8-native")
+    // Color Picker
+    implementation("com.github.skydoves:colorpickerview:2.2.4")
 }

@@ -22,7 +22,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
@@ -37,12 +36,12 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-
 import com.yalantis.ucrop.UCrop;
+import com.skydoves.colorpickerview.listeners.ColorEnvelopeListener;
+import com.skydoves.colorpickerview.ColorPickerDialog;
+import com.skydoves.colorpickerview.listeners.ColorEnvelopeListener;
 import com.google.android.flexbox.FlexboxLayout;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
-
-import java.lang.reflect.Field;
 
 public class AddHabitDialogFragment extends DialogFragment {
 
@@ -56,6 +55,7 @@ public class AddHabitDialogFragment extends DialogFragment {
     private ImageView iconPreviewImage;
     private FrameLayout iconPreviewContainer;
     private Uri croppedUri = null;
+    private int selectedColor = Color.BLACK;
 
 
     private final String[] repeatOptions = {"None", "Daily", "Weekly", "Monthly", "Yearly"};
@@ -69,6 +69,7 @@ public class AddHabitDialogFragment extends DialogFragment {
         LayoutInflater inflater = requireActivity().getLayoutInflater();
         View dialogView = inflater.inflate(R.layout.dialog_add_habit, null);
 
+        // Retrieve edit mode info
         if (getArguments() != null) {
             isEditMode = getArguments().getBoolean("isEditMode", false);
             position = getArguments().getInt("position", -1);
@@ -76,6 +77,7 @@ public class AddHabitDialogFragment extends DialogFragment {
             oldDescription = getArguments().getString("description", "");
         }
 
+        // Top controls
         ImageButton btnCancel = dialogView.findViewById(R.id.btnCancel);
         ImageButton btnSave = dialogView.findViewById(R.id.btnSave);
         TextView tvDialogTitle = dialogView.findViewById(R.id.tvDialogTitle);
@@ -83,23 +85,27 @@ public class AddHabitDialogFragment extends DialogFragment {
         EditText titleEditText = dialogView.findViewById(R.id.editHabitTitle);
         EditText descriptionEditText = dialogView.findViewById(R.id.editHabitDescription);
 
+        // Icon + color controls
+        ImageView iconCancelButton = dialogView.findViewById(R.id.iconCancelButton);
+        Button btnChooseIcon = dialogView.findViewById(R.id.btnChooseIcon);
+        Button btnUploadIcon = dialogView.findViewById(R.id.btnUploadIcon);
+        Button btnMoreColors = dialogView.findViewById(R.id.btnMoreColors);
+
+        // Repeat + every picker
         TextView tvRepeatSelected = dialogView.findViewById(R.id.tvRepeatSelected);
         LinearLayout repeatPickerContainer = dialogView.findViewById(R.id.repeatPickerContainer);
-
         TextView textIntervalUnit = dialogView.findViewById(R.id.textIntervalUnit);
         FlexboxLayout weekDaySelector = dialogView.findViewById(R.id.weekDaySelector);
 
         TextView tvEveryValue = dialogView.findViewById(R.id.tvEveryValue);
         LinearLayout everyPickerContainer = dialogView.findViewById(R.id.everyPickerContainer);
 
+        // Reminder
         SwitchCompat switchReminder = dialogView.findViewById(R.id.switchReminder);
         LinearLayout reminderContainer = dialogView.findViewById(R.id.reminderContainer);
         LinearLayout reminderTimeList = dialogView.findViewById(R.id.reminderTimeList);
-
         Button btnAddReminder = dialogView.findViewById(R.id.btnAddReminder);
-        ImageView iconCancelButton = dialogView.findViewById(R.id.iconCancelButton);
-        Button btnChooseIcon = dialogView.findViewById(R.id.btnChooseIcon);
-        Button btnUploadIcon = dialogView.findViewById(R.id.btnUploadIcon);
+
 
         iconPreviewContainer = dialogView.findViewById(R.id.iconPreviewContainer);
         iconPreviewImage = dialogView.findViewById(R.id.iconPreviewImage);
@@ -107,6 +113,22 @@ public class AddHabitDialogFragment extends DialogFragment {
             iconPreviewImage.setImageDrawable(null);
             iconPreviewContainer.setVisibility(View.GONE);
             selectedIconResId = -1;
+        });
+
+        btnMoreColors.setOnClickListener(v -> {
+            new ColorPickerDialog.Builder(requireContext())
+                    .setTitle("Choose Color")
+                    .setPreferenceName("MyColorPickerDialog")
+                    .setPositiveButton("Confirm", (ColorEnvelopeListener) (envelope, fromUser) -> {
+                        selectedColor = envelope.getColor();
+                        if (iconPreviewImage.getDrawable() != null) {
+                            iconPreviewImage.setColorFilter(selectedColor);
+                        }
+                    })
+                    .setNegativeButton("Cancel", (dialogInterface, i) -> dialogInterface.dismiss())
+                    .attachAlphaSlideBar(true) // optional
+                    .attachBrightnessSlideBar(true) // optional
+                    .show();
         });
 
         repeatPickerContainer.setOnClickListener(v -> {
@@ -201,7 +223,8 @@ public class AddHabitDialogFragment extends DialogFragment {
                         iconToUse,
                         "Daily",
                         0,
-                        customUri
+                        customUri,
+                        selectedColor
                 );
                 ((DashboardActivity) requireActivity()).addHabitToList(newHabit);
             }
@@ -290,6 +313,7 @@ public class AddHabitDialogFragment extends DialogFragment {
             timePickerDialog.show();
         });
 
+        setupPresetColorPickers(dialogView);
         builder.setView(dialogView);
 
         return builder.create();
@@ -371,6 +395,32 @@ public class AddHabitDialogFragment extends DialogFragment {
                 iconPreviewContainer.setVisibility(View.VISIBLE);
                 selectedIconResId = -1;
             }
+        }
+    }
+
+    private void setupPresetColorPickers(View dialogView) {
+        int[] colorViewIds = {
+                R.id.colorRed, R.id.colorOrange, R.id.colorYellow,
+                R.id.colorGreen, R.id.colorTeal, R.id.colorBlue,
+                R.id.colorPurple, R.id.colorBlack
+        };
+
+        int[] colors = {
+                Color.parseColor("#F44336"), Color.parseColor("#FF9800"),
+                Color.parseColor("#FFEB3B"), Color.parseColor("#4CAF50"),
+                Color.parseColor("#009688"), Color.parseColor("#2196F3"),
+                Color.parseColor("#9C27B0"), Color.parseColor("#212121")
+        };
+
+        for (int i = 0; i < colorViewIds.length; i++) {
+            View colorView = dialogView.findViewById(colorViewIds[i]);
+            int color = colors[i];
+            colorView.setOnClickListener(v -> {
+                selectedColor = color;
+                if (iconPreviewImage.getDrawable() != null) {
+                    iconPreviewImage.setColorFilter(selectedColor); // 更新颜色
+                }
+            });
         }
     }
 }

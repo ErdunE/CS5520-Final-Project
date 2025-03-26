@@ -41,13 +41,17 @@ public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitViewHol
 
         holder.title.setText(habit.getTitle());
         holder.description.setText(habit.getDescription());
-        holder.checkBox.setOnCheckedChangeListener(null);
-        holder.checkBox.setChecked(habit.isCompleted());
-        if (habit.getCustomIconUri() != null && !habit.getCustomIconUri().isEmpty()) {
+
+        if (habit.getCustomIconUri() != null) {
             holder.icon.setImageURI(Uri.parse(habit.getCustomIconUri()));
         } else {
             holder.icon.setImageResource(habit.getIcon());
         }
+
+        holder.icon.setColorFilter(habit.getCustomColor());
+
+        holder.checkBox.setOnCheckedChangeListener(null);
+        holder.checkBox.setChecked(habit.isCompleted());
 
         updateHabitUI(holder, habit);
 
@@ -112,7 +116,12 @@ public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitViewHol
         } else {
             holder.title.setTextColor(Color.BLACK);
             holder.description.setTextColor(Color.BLACK);
-            holder.icon.setColorFilter(null);
+
+            if (habit.getCustomColor() != 0) {
+                holder.icon.setColorFilter(habit.getCustomColor());
+            } else {
+                holder.icon.clearColorFilter();
+            }
         }
     }
 }
