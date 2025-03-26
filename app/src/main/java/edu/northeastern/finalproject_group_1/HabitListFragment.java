@@ -29,6 +29,14 @@ public class HabitListFragment extends Fragment implements HabitAdapter.OnHabitC
     private HabitAdapter habitAdapter;
     private List<Habit> habitList;
 
+    public List<Habit> getHabitList() {
+        return habitList;
+    }
+
+    public HabitAdapter getHabitAdapter() {
+        return habitAdapter;
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -191,6 +199,7 @@ public class HabitListFragment extends Fragment implements HabitAdapter.OnHabitC
                 .setPositiveButton("Delete", (dialog, which) -> {
                     habitList.remove(position);
                     habitAdapter.notifyItemRemoved(position);
+                    ((DashboardActivity) requireActivity()).deleteHabitReminder(habit);
                     showUndoSnackbar(habit, position);
                 })
                 .setNegativeButton("Cancel", (dialog, which) -> {

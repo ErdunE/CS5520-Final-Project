@@ -6,7 +6,9 @@ import android.app.TimePickerDialog;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Locale;
 
 import android.content.Intent;
@@ -41,7 +43,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.yalantis.ucrop.UCrop;
 import com.skydoves.colorpickerview.listeners.ColorEnvelopeListener;
 import com.skydoves.colorpickerview.ColorPickerDialog;
-import com.skydoves.colorpickerview.listeners.ColorEnvelopeListener;
 import com.google.android.flexbox.FlexboxLayout;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 
@@ -62,6 +63,7 @@ public class AddHabitDialogFragment extends DialogFragment {
     private Calendar startDate = Calendar.getInstance();
     private Calendar endDate = Calendar.getInstance();
     private int selectedColor = Color.BLACK;
+    private LinearLayout reminderTimeList;
 
 
     private final String[] repeatOptions = {"None", "Daily", "Weekly", "Monthly", "Yearly"};
@@ -97,6 +99,10 @@ public class AddHabitDialogFragment extends DialogFragment {
         Button btnUploadIcon = dialogView.findViewById(R.id.btnUploadIcon);
         Button btnMoreColors = dialogView.findViewById(R.id.btnMoreColors);
 
+        // Time picker
+        btnStartDate = dialogView.findViewById(R.id.btnStartDate);
+        btnEndDate = dialogView.findViewById(R.id.btnEndDate);
+
         // Repeat + every picker
         TextView tvRepeatSelected = dialogView.findViewById(R.id.tvRepeatSelected);
         LinearLayout repeatPickerContainer = dialogView.findViewById(R.id.repeatPickerContainer);
@@ -109,9 +115,11 @@ public class AddHabitDialogFragment extends DialogFragment {
         // Reminder
         SwitchCompat switchReminder = dialogView.findViewById(R.id.switchReminder);
         LinearLayout reminderContainer = dialogView.findViewById(R.id.reminderContainer);
-        LinearLayout reminderTimeList = dialogView.findViewById(R.id.reminderTimeList);
+        reminderTimeList = dialogView.findViewById(R.id.reminderTimeList);
         Button btnAddReminder = dialogView.findViewById(R.id.btnAddReminder);
 
+        btnChooseIcon.setOnClickListener(v -> showIconBottomSheet(iconPreviewImage, iconPreviewContainer));
+        btnUploadIcon.setOnClickListener(v -> pickImageFromGallery());
 
         iconPreviewContainer = dialogView.findViewById(R.id.iconPreviewContainer);
         iconPreviewImage = dialogView.findViewById(R.id.iconPreviewImage);
@@ -132,8 +140,8 @@ public class AddHabitDialogFragment extends DialogFragment {
                         }
                     })
                     .setNegativeButton("Cancel", (dialogInterface, i) -> dialogInterface.dismiss())
-                    .attachAlphaSlideBar(true) // optional
-                    .attachBrightnessSlideBar(true) // optional
+                    .attachAlphaSlideBar(true)
+                    .attachBrightnessSlideBar(true)
                     .show();
         });
 
@@ -187,12 +195,80 @@ public class AddHabitDialogFragment extends DialogFragment {
             tvDialogTitle.setText("Edit Habit");
             titleEditText.setText(oldTitle);
             descriptionEditText.setText(oldDescription);
+
+            // Repeat resume
+            tvRepeatSelected.setText(getArguments().getString("repeatUnit", "Daily"));
+            String selectedRepeat = tvRepeatSelected.getText().toString();
+            switch (selectedRepeat) {
+                case "Daily":
+                    textIntervalUnit.setText("Day");
+                    weekDaySelector.setVisibility(View.GONE);
+                    break;
+                case "Weekly":
+                    textIntervalUnit.setText("Week");
+                    weekDaySelector.setVisibility(View.VISIBLE);
+                    weekDaySelector.getLayoutParams().height = ViewGroup.LayoutParams.WRAP_CONTENT;
+                    weekDaySelector.requestLayout();
+                    setupWeekdayPickers(dialogView);
+                    List<Integer> selectedWeekdays = getArguments().getIntegerArrayList("weekdays");
+                    if (selectedWeekdays != null) {
+                        int[] dayIds = {
+                                R.id.dayMon, R.id.dayTue, R.id.dayWed,
+                                R.id.dayThu, R.id.dayFri, R.id.daySat, R.id.daySun
+                        };
+                        for (int i = 0; i < dayIds.length; i++) {
+                            TextView dayView = dialogView.findViewById(dayIds[i]);
+                            dayView.setSelected(selectedWeekdays.contains(i + 1));
+                            dayView.setBackgroundResource(dayView.isSelected() ?
+                                    R.drawable.bg_weekday_selected :
+                                    R.drawable.bg_weekday_unselected);
+                            dayView.setTextColor(getResources().getColor(
+                                    dayView.isSelected() ? android.R.color.white : android.R.color.black));
+                        }
+                    }
+                    break;
+                case "Monthly":
+                    textIntervalUnit.setText("Month");
+                    weekDaySelector.setVisibility(View.GONE);
+                    break;
+                case "Yearly":
+                    textIntervalUnit.setText("Year");
+                    weekDaySelector.setVisibility(View.GONE);
+                    break;
+                default:
+                    textIntervalUnit.setText("");
+                    weekDaySelector.setVisibility(View.GONE);
+                    break;
+            }
+
+            // Every resume
+            tvEveryValue.setText(String.valueOf(getArguments().getInt("every", 1)));
+
+            // Date resume
+            long startMillis = getArguments().getLong("startDate", -1);
+            if (startMillis != -1) {
+                startDate.setTimeInMillis(startMillis);
+                btnStartDate.setText(new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(startDate.getTime()));
+            }
+            long endMillis = getArguments().getLong("endDate", -1);
+            if (endMillis != -1) {
+                endDate.setTimeInMillis(endMillis);
+                btnEndDate.setText(new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(endDate.getTime()));
+            }
+
+            // reminder time resume
+            ArrayList<String> reminders = getArguments().getStringArrayList("reminderTimes");
+            if (reminders != null && !reminders.isEmpty()) {
+                switchReminder.setChecked(true);
+                for (String time : reminders) {
+                    addReminderRow(time);
+                }
+            }
         } else {
             tvDialogTitle.setText("Add Habit");
         }
 
-        btnChooseIcon.setOnClickListener(v -> showIconBottomSheet(iconPreviewImage, iconPreviewContainer));
-        btnUploadIcon.setOnClickListener(v -> pickImageFromGallery());
+
 
         btnCancel.setOnClickListener(v -> {
             new AlertDialog.Builder(requireContext())
@@ -217,21 +293,52 @@ public class AddHabitDialogFragment extends DialogFragment {
                 return;
             }
 
+            int iconToUse = (selectedIconResId != -1) ? selectedIconResId : IconData.getDefaultIcon();
+            String repeatUnit = tvRepeatSelected.getText().toString();
+            int every = Integer.parseInt(tvEveryValue.getText().toString());
+
+            List<Integer> selectedWeekdays = new ArrayList<>();
+            if (repeatUnit.equals("Weekly")) {
+                int[] dayIds = {
+                        R.id.dayMon, R.id.dayTue, R.id.dayWed,
+                        R.id.dayThu, R.id.dayFri, R.id.daySat, R.id.daySun
+                };
+                for (int i = 0; i < dayIds.length; i++) {
+                    TextView dayView = dialogView.findViewById(dayIds[i]);
+                    if (dayView.isSelected()) selectedWeekdays.add(i + 1);
+                }
+            }
+
+            List<String> reminderTimes = new ArrayList<>();
+            if (switchReminder.isChecked()) {
+                for (int i = 0; i < reminderTimeList.getChildCount(); i++) {
+                    LinearLayout row = (LinearLayout) reminderTimeList.getChildAt(i);
+                    TextView timeView = (TextView) row.getChildAt(2);
+                    reminderTimes.add(timeView.getText().toString());
+                }
+            }
+
+            Habit habit = new Habit(
+                    newTitle,
+                    newDescription,
+                    false,
+                    iconToUse,
+                    repeatUnit,
+                    0,
+                    customUri,
+                    selectedColor,
+                    repeatUnit,
+                    every,
+                    selectedWeekdays,
+                    startDate,
+                    endDate,
+                    reminderTimes
+            );
+
             if (isEditMode) {
-                ((DashboardActivity) requireActivity()).updateHabitInList(position, newTitle, newDescription);
+                ((DashboardActivity) requireActivity()).updateHabitInList(position, habit);
             } else {
-                int iconToUse = (selectedIconResId != -1) ? selectedIconResId : IconData.getDefaultIcon();
-                Habit newHabit = new Habit(
-                        newTitle,
-                        newDescription,
-                        false,
-                        iconToUse,
-                        "Daily",
-                        0,
-                        customUri,
-                        selectedColor
-                );
-                ((DashboardActivity) requireActivity()).addHabitToList(newHabit);
+                ((DashboardActivity) requireActivity()).addHabitToList(habit);
             }
 
             dismiss();
@@ -318,8 +425,6 @@ public class AddHabitDialogFragment extends DialogFragment {
             timePickerDialog.show();
         });
 
-        btnStartDate = dialogView.findViewById(R.id.btnStartDate);
-        btnEndDate = dialogView.findViewById(R.id.btnEndDate);
         btnStartDate.setOnClickListener(v -> showDatePickerDialog(startDate, btnStartDate));
         btnEndDate.setOnClickListener(v -> showDatePickerDialog(endDate, btnEndDate));
         setupPresetColorPickers(dialogView);
@@ -427,7 +532,7 @@ public class AddHabitDialogFragment extends DialogFragment {
             colorView.setOnClickListener(v -> {
                 selectedColor = color;
                 if (iconPreviewImage.getDrawable() != null) {
-                    iconPreviewImage.setColorFilter(selectedColor); // 更新颜色
+                    iconPreviewImage.setColorFilter(selectedColor);
                 }
             });
         }
@@ -444,5 +549,42 @@ public class AddHabitDialogFragment extends DialogFragment {
                 calendar.get(Calendar.MONTH),
                 calendar.get(Calendar.DAY_OF_MONTH)
         ).show();
+    }
+
+    private void addReminderRow(String time) {
+        LinearLayout row = new LinearLayout(requireContext());
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setLayoutParams(new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT));
+        row.setPadding(0, 8, 0, 8);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+
+        ImageView deleteIcon = new ImageView(requireContext());
+        deleteIcon.setImageResource(R.drawable.ic_minus);
+        deleteIcon.setLayoutParams(new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT));
+        deleteIcon.setPadding(16, 0, 16, 0);
+        deleteIcon.setColorFilter(Color.parseColor("#D3D3D3"));
+        deleteIcon.setOnClickListener(btn -> reminderTimeList.removeView(row));
+
+        TextView label = new TextView(requireContext());
+        label.setText("Time");
+        label.setTextSize(16);
+        label.setTextColor(Color.BLACK);
+        label.setLayoutParams(new LinearLayout.LayoutParams(
+                0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+
+        TextView timeView = new TextView(requireContext());
+        timeView.setText(time);
+        timeView.setTextSize(16);
+        timeView.setTextColor(Color.BLACK);
+
+        row.addView(deleteIcon);
+        row.addView(label);
+        row.addView(timeView);
+
+        reminderTimeList.addView(row);
     }
 }
