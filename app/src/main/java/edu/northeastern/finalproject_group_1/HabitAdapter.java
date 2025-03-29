@@ -2,6 +2,7 @@ package edu.northeastern.finalproject_group_1;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,10 +17,15 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
 public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitViewHolder> {
+    public interface OnHabitCheckListener {
+        void onHabitCheckChanged(int position, boolean isChecked);
+    }
     private List<Habit> habitList;
+    private OnHabitCheckListener checkListener;
 
-    public HabitAdapter(List<Habit> habitList) {
+    public HabitAdapter(List<Habit> habitList, OnHabitCheckListener checkListener) {
         this.habitList = habitList;
+        this.checkListener = checkListener;
     }
 
     @NonNull
@@ -33,13 +39,17 @@ public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitViewHol
     public void onBindViewHolder(@NonNull HabitViewHolder holder, int position) {
         Habit habit = habitList.get(position);
 
-        // Set title
         holder.title.setText(habit.getTitle());
-        // Set description
         holder.description.setText(habit.getDescription());
-        // Set icon
-        holder.icon.setImageResource(habit.getIcon());
-        // set checkbox status
+
+        if (habit.getCustomIconUri() != null) {
+            holder.icon.setImageURI(Uri.parse(habit.getCustomIconUri()));
+        } else {
+            holder.icon.setImageResource(habit.getIcon());
+        }
+
+        holder.icon.setColorFilter(habit.getCustomColor());
+
         holder.checkBox.setOnCheckedChangeListener(null);
         holder.checkBox.setChecked(habit.isCompleted());
 
@@ -47,11 +57,24 @@ public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitViewHol
 
         // checkbox logic
         holder.checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            habit.setCompleted(isChecked);
-            notifyItemChanged(position);
+            if (checkListener != null) {
+                int currentPosition = holder.getAdapterPosition();
+                checkListener.onHabitCheckChanged(currentPosition, isChecked);
+            }
         });
 
-        holder.itemView.setOnClickListener(v -> showHabitDialog(v.getContext(), habit));
+        // Edit
+        holder.itemView.setOnClickListener(v -> {
+            int pos = holder.getAdapterPosition();
+            showHabitDialog(v.getContext(), habit, pos);
+        });
+
+        // Long press
+        holder.itemView.setOnLongClickListener(v -> {
+            int pos = holder.getAdapterPosition();
+            Toast.makeText(v.getContext(), "Long press on item " + pos, Toast.LENGTH_SHORT).show();
+            return true;
+        });
     }
 
     @Override
@@ -73,13 +96,12 @@ public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitViewHol
         }
     }
 
-    private void showHabitDialog(Context context, Habit habit) {
+    private void showHabitDialog(Context context, Habit habit, int position) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle("Habit Options")
                 .setMessage("What do you want to do with '" + habit.getTitle() + "'?")
                 .setPositiveButton("Edit", (dialog, which) -> {
-                    // TODO: Edit Habit Detail
-                    Toast.makeText(context, "Edit feature coming soon!", Toast.LENGTH_SHORT).show();
+                    ((DashboardActivity) context).showEditHabitDialog(habit, position);
                 })
                 .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss())
                 .setCancelable(true)
@@ -90,9 +112,16 @@ public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitViewHol
         if (habit.isCompleted()) {
             holder.title.setTextColor(Color.GRAY);
             holder.description.setTextColor(Color.GRAY);
+            holder.icon.setColorFilter(Color.GRAY);
         } else {
             holder.title.setTextColor(Color.BLACK);
             holder.description.setTextColor(Color.BLACK);
+
+            if (habit.getCustomColor() != 0) {
+                holder.icon.setColorFilter(habit.getCustomColor());
+            } else {
+                holder.icon.clearColorFilter();
+            }
         }
     }
 }

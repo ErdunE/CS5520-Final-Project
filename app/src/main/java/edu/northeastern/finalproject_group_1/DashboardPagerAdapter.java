@@ -7,6 +7,8 @@ import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 public class DashboardPagerAdapter extends FragmentStateAdapter {
 
+    private GardenFragment gardenFragment = new GardenFragment();
+    private HabitListFragment habitListFragment = new HabitListFragment();
     public DashboardPagerAdapter(@NonNull FragmentActivity activity) {
         super(activity);
     }
@@ -27,5 +29,9 @@ public class DashboardPagerAdapter extends FragmentStateAdapter {
     @Override
     public int getItemCount() {
         return 2;
+    }
+
+    public HabitListFragment getHabitListFragment() {
+        return habitListFragment;
     }
 }
