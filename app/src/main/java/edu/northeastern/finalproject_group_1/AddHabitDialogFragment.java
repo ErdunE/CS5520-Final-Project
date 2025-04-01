@@ -205,6 +205,20 @@ public class AddHabitDialogFragment extends DialogFragment {
             titleEditText.setText(oldTitle);
             descriptionEditText.setText(oldDescription);
 
+            selectedIconResId = getArguments().getInt("iconResId", -1);
+            String customUriStr = getArguments().getString("customIconUri", null);
+            selectedColor = getArguments().getInt("customColor", Color.BLACK);
+
+            if (selectedIconResId != -1) {
+                iconPreviewImage.setImageResource(selectedIconResId);
+                iconPreviewImage.setColorFilter(selectedColor);
+                iconPreviewContainer.setVisibility(View.VISIBLE);
+            } else if (customUriStr != null) {
+                croppedUri = Uri.parse(customUriStr);
+                iconPreviewImage.setImageURI(croppedUri);
+                iconPreviewContainer.setVisibility(View.VISIBLE);
+            }
+
             // Repeat resume
             tvRepeatSelected.setText(getArguments().getString("repeatUnit", "Daily"));
             String selectedRepeat = tvRepeatSelected.getText().toString();
@@ -269,6 +283,7 @@ public class AddHabitDialogFragment extends DialogFragment {
             ArrayList<String> reminders = getArguments().getStringArrayList("reminderTimes");
             if (reminders != null && !reminders.isEmpty()) {
                 switchReminder.setChecked(true);
+                reminderContainer.setVisibility(View.VISIBLE);
                 for (String time : reminders) {
                     addReminderRow(time);
                 }
