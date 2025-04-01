@@ -52,10 +52,10 @@ public class InventoryCategoryAdapter extends RecyclerView.Adapter<InventoryCate
         holder.categoryTitle.setText(category);
 
         int iconRes = R.drawable.default_image;
-        if (category.equalsIgnoreCase("plant")) iconRes = R.drawable.fern;
-        else if (category.equalsIgnoreCase("decor")) iconRes = R.drawable.zen_stones;
-        else if (category.equalsIgnoreCase("tree")) iconRes = R.drawable.orange_tree;
-        else if (category.equalsIgnoreCase("furniture")) iconRes = R.drawable.bridge;
+        if (category.equalsIgnoreCase("plant")) iconRes = R.drawable.plant;
+        else if (category.equalsIgnoreCase("decor")) iconRes = R.drawable.decor;
+        else if (category.equalsIgnoreCase("tree")) iconRes = R.drawable.tree;
+        else if (category.equalsIgnoreCase("furniture")) iconRes = R.drawable.furniture;
 
         holder.categoryIcon.setImageResource(iconRes);
 

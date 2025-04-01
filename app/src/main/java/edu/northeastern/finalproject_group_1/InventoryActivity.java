@@ -1,7 +1,9 @@
 package edu.northeastern.finalproject_group_1;
 
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -11,6 +13,8 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -29,6 +33,9 @@ public class InventoryActivity extends AppCompatActivity {
     private DatabaseReference inventoryRef;
     private String userId = "testUser1";
 
+    private BottomNavigationView bottomNavigationView;
+    private FloatingActionButton fab;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,6 +44,36 @@ public class InventoryActivity extends AppCompatActivity {
 
         recyclerView = findViewById(R.id.recyclerViewInventory);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        bottomNavigationView = findViewById(R.id.bottomNavigationView);
+        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                int itemId = item.getItemId();
+
+                if (itemId == R.id.Shop) {
+                    startActivity(new Intent(InventoryActivity.this, MarketplaceActivity.class));
+                    return true;
+                } else if (itemId == R.id.Challenges) {
+                    startActivity(new Intent(InventoryActivity.this, ChallengesActivity.class));
+                    return true;
+                } else if (itemId == R.id.Stats) {
+                    startActivity(new Intent(InventoryActivity.this, StatsActivity.class));
+                    return true;
+                } else if (itemId == R.id.Settings) {
+                    startActivity(new Intent(InventoryActivity.this, SettingsActivity.class));
+                    return true;
+                }
+                return false;
+            }
+        });
+
+        fab = findViewById(R.id.fab);
+
+        // Add button Click Listener
+//        fab.setOnClickListener(v -> {
+//            showAddHabitDialog();
+//        });
 
         inventoryRef = FirebaseDatabase.getInstance().getReference("GARDENDATA").child(userId).child("inventory");
         inventoryRef.addListenerForSingleValueEvent(new ValueEventListener() {

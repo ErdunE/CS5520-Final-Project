@@ -120,11 +120,19 @@ public class MarketplaceActivity extends AppCompatActivity {
         goldReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()) {
-                    userGold = snapshot.getValue(Integer.class);
-                    goldBalance.setText(userGold);
+                Object goldValue = snapshot.getValue();
+                if (goldValue instanceof Long) {
+                    userGold = ((Long) goldValue).intValue();
+                } else if (goldValue instanceof String) {
+                    try {
+                        userGold = Integer.parseInt((String) goldValue);
+                    } catch (NumberFormatException e) {
+                        userGold = 0;
+                    }
                 }
+                goldBalance.setText(String.valueOf(userGold));
             }
+
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 Toast.makeText(MarketplaceActivity.this, "Failed to load gold balance", Toast.LENGTH_SHORT).show();
@@ -148,7 +156,6 @@ public class MarketplaceActivity extends AppCompatActivity {
                             item.imageId = (Integer) imageIdObj;
                         }
                     }
-
                     allMarketplaceItems.add(item);
                 }
                 selectDailyItems();
@@ -166,9 +173,18 @@ public class MarketplaceActivity extends AppCompatActivity {
         Collections.shuffle(allMarketplaceItems, new Random());
         dailyMarketplaceItems.clear();
 
-        for (int i = 0; i < DAILY_ITEM_COUNT && i < allMarketplaceItems.size(); i++) {
-            dailyMarketplaceItems.add(allMarketplaceItems.get(i));
+        boolean rareAdded = false;
+        for (MarketplaceItem item : allMarketplaceItems) {
+            if (dailyMarketplaceItems.size() >= DAILY_ITEM_COUNT) break;
+
+            if (item.isRare() && !rareAdded) {
+                dailyMarketplaceItems.add(item);
+                rareAdded = true;
+            } else if (!item.isRare()) {
+                dailyMarketplaceItems.add(item);
+            }
         }
+
         adapter = new MarketplaceAdapter(this, dailyMarketplaceItems, this::buyItem);
         recyclerView.setAdapter(adapter);
     }
@@ -191,10 +207,9 @@ public class MarketplaceActivity extends AppCompatActivity {
                 itemData.put("linkedHabit", 0);
 
                 inventoryReference.child(itemId).setValue(itemData);
-
                 userGold -= item.getPrice();
                 goldReference.setValue(userGold);
-                goldBalance.setText(userGold);
+                goldBalance.setText(String.valueOf(userGold));
                 Toast.makeText(this, "Purchased: " + item.getName(), Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(this, "Error purchasing item!", Toast.LENGTH_SHORT).show();
