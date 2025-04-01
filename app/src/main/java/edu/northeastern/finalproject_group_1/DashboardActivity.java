@@ -195,9 +195,7 @@ public class DashboardActivity extends AppCompatActivity {
 
         Log.d("NewHabit", "ReminderScheduler called for: " + newHabit.getTitle());
 
-        HabitListFragment fragment = (HabitListFragment) getSupportFragmentManager()
-                .findFragmentByTag("f1");
-
+        HabitListFragment fragment = pagerAdapter.getHabitListFragment();
         if (fragment != null) {
             fragment.addHabit(newHabit);
         }
