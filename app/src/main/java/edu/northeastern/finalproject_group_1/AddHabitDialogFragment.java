@@ -393,45 +393,7 @@ public class AddHabitDialogFragment extends DialogFragment {
             TimePickerDialog timePickerDialog = new TimePickerDialog(requireContext(),
                     (view, selectedHour, selectedMinute) -> {
                         String time = String.format(Locale.getDefault(), "%02d:%02d", selectedHour, selectedMinute);
-
-                        LinearLayout row = new LinearLayout(requireContext());
-                        row.setOrientation(LinearLayout.HORIZONTAL);
-                        row.setLayoutParams(new LinearLayout.LayoutParams(
-                                LinearLayout.LayoutParams.MATCH_PARENT,
-                                LinearLayout.LayoutParams.WRAP_CONTENT));
-                        row.setPadding(0, 8, 0, 8);
-                        row.setGravity(Gravity.CENTER_VERTICAL);
-
-                        // minus icon
-                        ImageView deleteIcon = new ImageView(requireContext());
-                        deleteIcon.setImageResource(R.drawable.ic_minus);
-                        deleteIcon.setLayoutParams(new LinearLayout.LayoutParams(
-                                ViewGroup.LayoutParams.WRAP_CONTENT,
-                                ViewGroup.LayoutParams.WRAP_CONTENT));
-                        deleteIcon.setPadding(16, 0, 16, 0);
-                        deleteIcon.setColorFilter(Color.parseColor("#D3D3D3"));
-                        deleteIcon.setOnClickListener(btn -> reminderTimeList.removeView(row));
-
-                        // Label "Time"
-                        TextView label = new TextView(requireContext());
-                        label.setText("Time");
-                        label.setTextSize(16);
-                        label.setTextColor(Color.BLACK);
-                        label.setLayoutParams(new LinearLayout.LayoutParams(
-                                0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-
-                        // Time Value
-                        TextView timeView = new TextView(requireContext());
-                        timeView.setText(time);
-                        timeView.setTextSize(16);
-                        timeView.setTextColor(Color.BLACK);
-
-                        // Add views
-                        row.addView(deleteIcon);
-                        row.addView(label);
-                        row.addView(timeView);
-
-                        reminderTimeList.addView(row);
+                        addReminderRow(time);
                     }, hour, minute, true);
 
             timePickerDialog.show();
@@ -564,38 +526,33 @@ public class AddHabitDialogFragment extends DialogFragment {
     }
 
     private void addReminderRow(String time) {
-        LinearLayout row = new LinearLayout(requireContext());
-        row.setOrientation(LinearLayout.HORIZONTAL);
-        row.setLayoutParams(new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT));
-        row.setPadding(0, 8, 0, 8);
-        row.setGravity(Gravity.CENTER_VERTICAL);
+        View row = LayoutInflater.from(requireContext())
+                .inflate(R.layout.item_reminder_row, reminderTimeList, false);
 
-        ImageView deleteIcon = new ImageView(requireContext());
-        deleteIcon.setImageResource(R.drawable.ic_minus);
-        deleteIcon.setLayoutParams(new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT));
-        deleteIcon.setPadding(16, 0, 16, 0);
-        deleteIcon.setColorFilter(Color.parseColor("#D3D3D3"));
-        deleteIcon.setOnClickListener(btn -> reminderTimeList.removeView(row));
+        TextView timeView = row.findViewById(R.id.timeValue);
+        ImageView deleteIcon = row.findViewById(R.id.iconDelete);
+        ImageView editIcon = row.findViewById(R.id.iconEdit);
 
-        TextView label = new TextView(requireContext());
-        label.setText("Time");
-        label.setTextSize(16);
-        label.setTextColor(Color.BLACK);
-        label.setLayoutParams(new LinearLayout.LayoutParams(
-                0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-
-        TextView timeView = new TextView(requireContext());
         timeView.setText(time);
-        timeView.setTextSize(16);
-        timeView.setTextColor(Color.BLACK);
 
-        row.addView(deleteIcon);
-        row.addView(label);
-        row.addView(timeView);
+        deleteIcon.setOnClickListener(v -> reminderTimeList.removeView(row));
+
+        View.OnClickListener editClickListener = v -> {
+            String[] parts = timeView.getText().toString().split(":");
+            int hour = Integer.parseInt(parts[0]);
+            int minute = Integer.parseInt(parts[1]);
+
+            TimePickerDialog timePickerDialog = new TimePickerDialog(requireContext(),
+                    (view, selectedHour, selectedMinute) -> {
+                        String newTime = String.format(Locale.getDefault(), "%02d:%02d", selectedHour, selectedMinute);
+                        timeView.setText(newTime);
+                    }, hour, minute, true);
+
+            timePickerDialog.show();
+        };
+
+        timeView.setOnClickListener(editClickListener);
+        editIcon.setOnClickListener(editClickListener);
 
         reminderTimeList.addView(row);
     }
