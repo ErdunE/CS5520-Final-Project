@@ -183,6 +183,7 @@
 
                     <Button
                         android:id="@+id/btnUploadIcon"
+                        android:visibility="gone"
                         android:backgroundTint="#679273"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
