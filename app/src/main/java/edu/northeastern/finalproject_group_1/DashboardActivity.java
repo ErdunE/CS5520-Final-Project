@@ -32,10 +32,17 @@ public class DashboardActivity extends AppCompatActivity {
     private DashboardPagerAdapter pagerAdapter;
     private BottomNavigationView bottomNavigationView;
     private FloatingActionButton fab;
+    private String currentUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        //Storing current user from login
+        Intent loginIntent = getIntent();
+        if (loginIntent.hasExtra("USERNAME")) {
+            currentUser = loginIntent.getStringExtra("USERNAME");
+        }
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
             AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
