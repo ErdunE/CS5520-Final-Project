@@ -169,8 +169,20 @@ public class HabitListFragment extends Fragment implements HabitAdapter.OnHabitC
         habit.setCompleted(isChecked);
 
         habitList.remove(fromPos);
-        habitList.add(habit);
-        int toPos = habitList.size() - 1;
+
+        int toPos;
+
+        if (isChecked) {
+            habitList.add(habit);
+            toPos = habitList.size() - 1;
+        } else {
+            int insertPos = 0;
+            while (insertPos < habitList.size() && !habitList.get(insertPos).isCompleted()) {
+                insertPos++;
+            }
+            habitList.add(insertPos, habit);
+            toPos = insertPos;
+        }
 
         habitAdapter.notifyItemMoved(fromPos, toPos);
         habitAdapter.notifyItemChanged(toPos);
