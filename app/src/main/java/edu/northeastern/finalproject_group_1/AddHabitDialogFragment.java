@@ -118,6 +118,10 @@ public class AddHabitDialogFragment extends DialogFragment {
         reminderTimeList = dialogView.findViewById(R.id.reminderTimeList);
         Button btnAddReminder = dialogView.findViewById(R.id.btnAddReminder);
 
+        // Bottom buttons
+        Button btnBottomCancel = dialogView.findViewById(R.id.btnBottomCancel);
+        Button btnBottomSave = dialogView.findViewById(R.id.btnBottomSave);
+
         btnChooseIcon.setOnClickListener(v -> showIconBottomSheet(iconPreviewImage, iconPreviewContainer));
         btnUploadIcon.setOnClickListener(v -> pickImageFromGallery());
 
@@ -268,7 +272,7 @@ public class AddHabitDialogFragment extends DialogFragment {
             tvDialogTitle.setText("Add Habit");
         }
 
-
+        btnBottomSave.setText(isEditMode ? "Save" : "Create");
 
         btnCancel.setOnClickListener(v -> {
             new AlertDialog.Builder(requireContext())
@@ -282,6 +286,9 @@ public class AddHabitDialogFragment extends DialogFragment {
                     })
                     .show();
         });
+
+        btnBottomCancel.setOnClickListener(v -> btnCancel.performClick());
+        btnBottomSave.setOnClickListener(v -> btnSave.performClick());
 
         btnSave.setOnClickListener(v -> {
             String newTitle = titleEditText.getText().toString().trim();
