@@ -66,7 +66,7 @@ public class AddHabitDialogFragment extends DialogFragment {
     private LinearLayout reminderTimeList;
 
 
-    private final String[] repeatOptions = {"None", "Daily", "Weekly", "Monthly", "Yearly"};
+    private final String[] repeatOptions = {"Never", "Daily", "Weekly", "Monthly", "Yearly"};
 
     public AddHabitDialogFragment() {}
 
@@ -167,10 +167,12 @@ public class AddHabitDialogFragment extends DialogFragment {
                 switch (selected) {
                     case "Daily":
                         textIntervalUnit.setText("Day");
+                        everyPickerContainer.setVisibility(View.VISIBLE);
                         weekDaySelector.setVisibility(View.GONE);
                         break;
                     case "Weekly":
                         textIntervalUnit.setText("Week");
+                        everyPickerContainer.setVisibility(View.VISIBLE);
                         weekDaySelector.setVisibility(View.VISIBLE);
                         weekDaySelector.getLayoutParams().height = ViewGroup.LayoutParams.WRAP_CONTENT;
                         weekDaySelector.requestLayout();
@@ -178,14 +180,17 @@ public class AddHabitDialogFragment extends DialogFragment {
                         break;
                     case "Monthly":
                         textIntervalUnit.setText("Month");
+                        everyPickerContainer.setVisibility(View.VISIBLE);
                         weekDaySelector.setVisibility(View.GONE);
                         break;
                     case "Yearly":
                         textIntervalUnit.setText("Year");
+                        everyPickerContainer.setVisibility(View.VISIBLE);
                         weekDaySelector.setVisibility(View.GONE);
                         break;
                     default:
                         textIntervalUnit.setText("");
+                        everyPickerContainer.setVisibility(View.GONE);
                         weekDaySelector.setVisibility(View.GONE);
                         break;
                 }
