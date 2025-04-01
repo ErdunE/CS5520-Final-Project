@@ -1,5 +1,7 @@
 package edu.northeastern.finalproject_group_1;
 
+import static java.util.Objects.isNull;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -51,23 +53,26 @@ public class RegistrationActivity extends AppCompatActivity {
     }
 
     private void registerUser(String username) {
-        DatabaseReference existingUsers = db.getReference().child("USERS");
-        existingUsers.child(username).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()) {
-                    Toast.makeText(getApplicationContext(), "Username already taken", Toast.LENGTH_SHORT).show();
+        if (isNull(username) || username.isEmpty()) {
+            Toast.makeText(getApplicationContext(), "Please enter a username to register", Toast.LENGTH_SHORT).show();
+        } else {
+            DatabaseReference existingUsers = db.getReference().child("USERS");
+            existingUsers.child(username).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    if (snapshot.exists()) {
+                        Toast.makeText(getApplicationContext(), "Username already taken", Toast.LENGTH_SHORT).show();
+                    } else {
+                        createUser(username);
+                    }
                 }
-                else {
-                    createUser(username);
-                }
-            }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Log.d(TAG, "Failed to find users in database: " + error);
-            }
-        });
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    Log.d(TAG, "Failed to find users in database: " + error);
+                }
+            });
+        }
     }
 
     private void createUser(String username) {

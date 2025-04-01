@@ -1,5 +1,7 @@
 package edu.northeastern.finalproject_group_1;
 
+import static java.util.Objects.isNull;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -61,24 +63,27 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void validateAndLogIn(String username) {
-        DatabaseReference users = db.getReference().child("USERS");
-        users.child(username).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()) {
-                    Log.d(TAG, "Successfully found user " + username + " in database");
-                    logIn(username);
+        if (isNull(username) || username.isEmpty()) {
+            Toast.makeText(getApplicationContext(), "Please enter a username to log in", Toast.LENGTH_SHORT).show();
+        } else {
+            DatabaseReference users = db.getReference().child("USERS");
+            users.child(username).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    if (snapshot.exists()) {
+                        Log.d(TAG, "Successfully found user " + username + " in database");
+                        logIn(username);
+                    } else {
+                        Toast.makeText(getApplicationContext(), "Could not find a user with that username", Toast.LENGTH_LONG).show();
+                    }
                 }
-                else {
-                    Toast.makeText(getApplicationContext(), "Could not find a user with that username", Toast.LENGTH_LONG).show();
-                }
-            }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Log.e(TAG, "Failed to find users in database: " + error);
-            }
-        });
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    Log.e(TAG, "Failed to find users in database: " + error);
+                }
+            });
+        }
     }
 
     private void logIn(String username) {
