@@ -18,6 +18,7 @@ public class GardenFragment extends Fragment {
     private GardenView gardenView;
     private Spinner plantSelector;
     private Button testGrowButton;
+    private Button addPlantButton;
 
     @Nullable
     @Override
@@ -35,8 +36,9 @@ public class GardenFragment extends Fragment {
         gardenView = view.findViewById(R.id.gardenView);
         plantSelector = view.findViewById(R.id.plantSelector);
         testGrowButton = view.findViewById(R.id.testGrowButton);
+        addPlantButton = view.findViewById(R.id.addPlantButton);
 
-        // Set up garden
+        // Set up garden - we're not adding initial plants anymore
         setupGarden();
 
         // Set up test controls
@@ -44,24 +46,17 @@ public class GardenFragment extends Fragment {
     }
 
     private void setupGarden() {
-        // Add some initial plants for testing
-        gardenView.addPlant("Daily Exercise");
-        gardenView.addPlant("Reading");
-        gardenView.addPlant("Meditation");
+        // We're not adding initial plants anymore
+        // The garden will start empty
     }
 
     public void addNewPlant() {
-        // In a real application, this would be connected to the habits list
-        // For now, just add a placeholder plant
-        if (gardenView.getPlantCount() < 5) {
-            gardenView.addPlant("New Habit " + (gardenView.getPlantCount() + 1));
-            Toast.makeText(getContext(), "Added new plant!", Toast.LENGTH_SHORT).show();
+        // Removing the limit check - allow unlimited plants
+        gardenView.addPlant("New Habit " + (gardenView.getPlantCount() + 1));
+        Toast.makeText(getContext(), "Added new plant!", Toast.LENGTH_SHORT).show();
 
-            // Update the plant selector
-            updatePlantSelector();
-        } else {
-            Toast.makeText(getContext(), "Garden is full! Complete existing habits first.", Toast.LENGTH_SHORT).show();
-        }
+        // Update the plant selector
+        updatePlantSelector();
     }
 
     private void setupTestControls() {
@@ -81,6 +76,11 @@ public class GardenFragment extends Fragment {
                         "Please select a plant to grow",
                         Toast.LENGTH_SHORT).show();
             }
+        });
+
+        // Set up add plant button
+        addPlantButton.setOnClickListener(v -> {
+            addNewPlant();
         });
     }
 

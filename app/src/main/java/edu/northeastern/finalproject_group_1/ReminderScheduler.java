@@ -20,7 +20,7 @@ public class ReminderScheduler {
 
             Intent intent = new Intent(context, ReminderReceiver.class);
             intent.putExtra("title", habitTitle);
-            intent.putExtra("message", "Time to work on \"" + habitTitle + "\"!");
+            intent.putExtra("message", ReminderMessagePool.getRandomMessage(habitTitle));
 
             PendingIntent pendingIntent = PendingIntent.getBroadcast(
                     context,

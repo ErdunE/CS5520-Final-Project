@@ -32,10 +32,17 @@ public class DashboardActivity extends AppCompatActivity {
     private DashboardPagerAdapter pagerAdapter;
     private BottomNavigationView bottomNavigationView;
     private FloatingActionButton fab;
+    private String currentUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        //Storing current user from login
+        Intent loginIntent = getIntent();
+        if (loginIntent.hasExtra("USERNAME")) {
+            currentUser = loginIntent.getStringExtra("USERNAME");
+        }
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
             AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
@@ -125,17 +132,28 @@ public class DashboardActivity extends AppCompatActivity {
 //            }
 //        });
 
-        // Test code for reminder, current + 10s
-        Calendar testTime = Calendar.getInstance();
-        testTime.add(Calendar.SECOND, 10);
-        List<Calendar> testTimes = new ArrayList<>();
-        testTimes.add(testTime);
-        ReminderScheduler.scheduleReminders(
-                DashboardActivity.this,
-                999,
-                "Test Water Reminder",
-                testTimes
-        );
+        // Test code for reminder, current + per 10s
+        String[] testHabitTitles = {
+                "Drink Water", "Workout", "Read Books", "Meditate"
+        };
+
+        for (int i = 0; i < testHabitTitles.length; i++) {
+            Calendar testTime = Calendar.getInstance();
+            testTime.add(Calendar.SECOND, 10 * (i + 1));
+
+            String habitTitle = testHabitTitles[i];
+            String message = ReminderMessagePool.getRandomMessage(habitTitle);
+
+            List<Calendar> testTimes = new ArrayList<>();
+            testTimes.add(testTime);
+
+            ReminderScheduler.scheduleReminders(
+                    DashboardActivity.this,
+                    900 + i,
+                    habitTitle,
+                    testTimes
+            );
+        }
     }
 
     // Pop up dialog after click add button
@@ -195,9 +213,7 @@ public class DashboardActivity extends AppCompatActivity {
 
         Log.d("NewHabit", "ReminderScheduler called for: " + newHabit.getTitle());
 
-        HabitListFragment fragment = (HabitListFragment) getSupportFragmentManager()
-                .findFragmentByTag("f1");
-
+        HabitListFragment fragment = pagerAdapter.getHabitListFragment();
         if (fragment != null) {
             fragment.addHabit(newHabit);
         }
@@ -245,6 +261,9 @@ public class DashboardActivity extends AppCompatActivity {
         args.putInt("position", position);
         args.putString("title", habit.getTitle());
         args.putString("description", habit.getDescription());
+        args.putInt("iconResId", habit.getIcon());
+        args.putString("customIconUri", habit.getCustomIconUri());
+        args.putInt("customColor", habit.getCustomColor());
         args.putString("repeatUnit", habit.getRepeatUnit());
         args.putInt("every", habit.getEvery());
         args.putIntegerArrayList("weekdays", new ArrayList<>(habit.getWeekdays()));
