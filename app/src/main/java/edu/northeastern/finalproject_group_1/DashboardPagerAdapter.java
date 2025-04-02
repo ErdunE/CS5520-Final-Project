@@ -18,11 +18,11 @@ public class DashboardPagerAdapter extends FragmentStateAdapter {
     public Fragment createFragment(int position) {
         switch (position) {
             case 0:
-                return new GardenFragment();
+                return gardenFragment;
             case 1:
-                return new HabitListFragment();
+                return habitListFragment;
             default:
-                return new GardenFragment();
+                return gardenFragment;
         }
     }
 

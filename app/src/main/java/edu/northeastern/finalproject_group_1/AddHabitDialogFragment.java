@@ -66,7 +66,7 @@ public class AddHabitDialogFragment extends DialogFragment {
     private LinearLayout reminderTimeList;
 
 
-    private final String[] repeatOptions = {"None", "Daily", "Weekly", "Monthly", "Yearly"};
+    private final String[] repeatOptions = {"Never", "Daily", "Weekly", "Monthly", "Yearly"};
 
     public AddHabitDialogFragment() {}
 
@@ -118,6 +118,10 @@ public class AddHabitDialogFragment extends DialogFragment {
         reminderTimeList = dialogView.findViewById(R.id.reminderTimeList);
         Button btnAddReminder = dialogView.findViewById(R.id.btnAddReminder);
 
+        // Bottom buttons
+        Button btnBottomCancel = dialogView.findViewById(R.id.btnBottomCancel);
+        Button btnBottomSave = dialogView.findViewById(R.id.btnBottomSave);
+
         btnChooseIcon.setOnClickListener(v -> showIconBottomSheet(iconPreviewImage, iconPreviewContainer));
         btnUploadIcon.setOnClickListener(v -> pickImageFromGallery());
 
@@ -163,10 +167,12 @@ public class AddHabitDialogFragment extends DialogFragment {
                 switch (selected) {
                     case "Daily":
                         textIntervalUnit.setText("Day");
+                        everyPickerContainer.setVisibility(View.VISIBLE);
                         weekDaySelector.setVisibility(View.GONE);
                         break;
                     case "Weekly":
                         textIntervalUnit.setText("Week");
+                        everyPickerContainer.setVisibility(View.VISIBLE);
                         weekDaySelector.setVisibility(View.VISIBLE);
                         weekDaySelector.getLayoutParams().height = ViewGroup.LayoutParams.WRAP_CONTENT;
                         weekDaySelector.requestLayout();
@@ -174,14 +180,17 @@ public class AddHabitDialogFragment extends DialogFragment {
                         break;
                     case "Monthly":
                         textIntervalUnit.setText("Month");
+                        everyPickerContainer.setVisibility(View.VISIBLE);
                         weekDaySelector.setVisibility(View.GONE);
                         break;
                     case "Yearly":
                         textIntervalUnit.setText("Year");
+                        everyPickerContainer.setVisibility(View.VISIBLE);
                         weekDaySelector.setVisibility(View.GONE);
                         break;
                     default:
                         textIntervalUnit.setText("");
+                        everyPickerContainer.setVisibility(View.GONE);
                         weekDaySelector.setVisibility(View.GONE);
                         break;
                 }
@@ -195,6 +204,20 @@ public class AddHabitDialogFragment extends DialogFragment {
             tvDialogTitle.setText("Edit Habit");
             titleEditText.setText(oldTitle);
             descriptionEditText.setText(oldDescription);
+
+            selectedIconResId = getArguments().getInt("iconResId", -1);
+            String customUriStr = getArguments().getString("customIconUri", null);
+            selectedColor = getArguments().getInt("customColor", Color.BLACK);
+
+            if (selectedIconResId != -1) {
+                iconPreviewImage.setImageResource(selectedIconResId);
+                iconPreviewImage.setColorFilter(selectedColor);
+                iconPreviewContainer.setVisibility(View.VISIBLE);
+            } else if (customUriStr != null) {
+                croppedUri = Uri.parse(customUriStr);
+                iconPreviewImage.setImageURI(croppedUri);
+                iconPreviewContainer.setVisibility(View.VISIBLE);
+            }
 
             // Repeat resume
             tvRepeatSelected.setText(getArguments().getString("repeatUnit", "Daily"));
@@ -260,6 +283,7 @@ public class AddHabitDialogFragment extends DialogFragment {
             ArrayList<String> reminders = getArguments().getStringArrayList("reminderTimes");
             if (reminders != null && !reminders.isEmpty()) {
                 switchReminder.setChecked(true);
+                reminderContainer.setVisibility(View.VISIBLE);
                 for (String time : reminders) {
                     addReminderRow(time);
                 }
@@ -268,7 +292,7 @@ public class AddHabitDialogFragment extends DialogFragment {
             tvDialogTitle.setText("Add Habit");
         }
 
-
+        btnBottomSave.setText(isEditMode ? "Save" : "Create");
 
         btnCancel.setOnClickListener(v -> {
             new AlertDialog.Builder(requireContext())
@@ -282,6 +306,9 @@ public class AddHabitDialogFragment extends DialogFragment {
                     })
                     .show();
         });
+
+        btnBottomCancel.setOnClickListener(v -> btnCancel.performClick());
+        btnBottomSave.setOnClickListener(v -> btnSave.performClick());
 
         btnSave.setOnClickListener(v -> {
             String newTitle = titleEditText.getText().toString().trim();
@@ -381,45 +408,7 @@ public class AddHabitDialogFragment extends DialogFragment {
             TimePickerDialog timePickerDialog = new TimePickerDialog(requireContext(),
                     (view, selectedHour, selectedMinute) -> {
                         String time = String.format(Locale.getDefault(), "%02d:%02d", selectedHour, selectedMinute);
-
-                        LinearLayout row = new LinearLayout(requireContext());
-                        row.setOrientation(LinearLayout.HORIZONTAL);
-                        row.setLayoutParams(new LinearLayout.LayoutParams(
-                                LinearLayout.LayoutParams.MATCH_PARENT,
-                                LinearLayout.LayoutParams.WRAP_CONTENT));
-                        row.setPadding(0, 8, 0, 8);
-                        row.setGravity(Gravity.CENTER_VERTICAL);
-
-                        // minus icon
-                        ImageView deleteIcon = new ImageView(requireContext());
-                        deleteIcon.setImageResource(R.drawable.ic_minus);
-                        deleteIcon.setLayoutParams(new LinearLayout.LayoutParams(
-                                ViewGroup.LayoutParams.WRAP_CONTENT,
-                                ViewGroup.LayoutParams.WRAP_CONTENT));
-                        deleteIcon.setPadding(16, 0, 16, 0);
-                        deleteIcon.setColorFilter(Color.parseColor("#D3D3D3"));
-                        deleteIcon.setOnClickListener(btn -> reminderTimeList.removeView(row));
-
-                        // Label "Time"
-                        TextView label = new TextView(requireContext());
-                        label.setText("Time");
-                        label.setTextSize(16);
-                        label.setTextColor(Color.BLACK);
-                        label.setLayoutParams(new LinearLayout.LayoutParams(
-                                0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-
-                        // Time Value
-                        TextView timeView = new TextView(requireContext());
-                        timeView.setText(time);
-                        timeView.setTextSize(16);
-                        timeView.setTextColor(Color.BLACK);
-
-                        // Add views
-                        row.addView(deleteIcon);
-                        row.addView(label);
-                        row.addView(timeView);
-
-                        reminderTimeList.addView(row);
+                        addReminderRow(time);
                     }, hour, minute, true);
 
             timePickerDialog.show();
@@ -552,38 +541,33 @@ public class AddHabitDialogFragment extends DialogFragment {
     }
 
     private void addReminderRow(String time) {
-        LinearLayout row = new LinearLayout(requireContext());
-        row.setOrientation(LinearLayout.HORIZONTAL);
-        row.setLayoutParams(new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT));
-        row.setPadding(0, 8, 0, 8);
-        row.setGravity(Gravity.CENTER_VERTICAL);
+        View row = LayoutInflater.from(requireContext())
+                .inflate(R.layout.item_reminder_row, reminderTimeList, false);
 
-        ImageView deleteIcon = new ImageView(requireContext());
-        deleteIcon.setImageResource(R.drawable.ic_minus);
-        deleteIcon.setLayoutParams(new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT));
-        deleteIcon.setPadding(16, 0, 16, 0);
-        deleteIcon.setColorFilter(Color.parseColor("#D3D3D3"));
-        deleteIcon.setOnClickListener(btn -> reminderTimeList.removeView(row));
+        TextView timeView = row.findViewById(R.id.timeValue);
+        ImageView deleteIcon = row.findViewById(R.id.iconDelete);
+        ImageView editIcon = row.findViewById(R.id.iconEdit);
 
-        TextView label = new TextView(requireContext());
-        label.setText("Time");
-        label.setTextSize(16);
-        label.setTextColor(Color.BLACK);
-        label.setLayoutParams(new LinearLayout.LayoutParams(
-                0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-
-        TextView timeView = new TextView(requireContext());
         timeView.setText(time);
-        timeView.setTextSize(16);
-        timeView.setTextColor(Color.BLACK);
 
-        row.addView(deleteIcon);
-        row.addView(label);
-        row.addView(timeView);
+        deleteIcon.setOnClickListener(v -> reminderTimeList.removeView(row));
+
+        View.OnClickListener editClickListener = v -> {
+            String[] parts = timeView.getText().toString().split(":");
+            int hour = Integer.parseInt(parts[0]);
+            int minute = Integer.parseInt(parts[1]);
+
+            TimePickerDialog timePickerDialog = new TimePickerDialog(requireContext(),
+                    (view, selectedHour, selectedMinute) -> {
+                        String newTime = String.format(Locale.getDefault(), "%02d:%02d", selectedHour, selectedMinute);
+                        timeView.setText(newTime);
+                    }, hour, minute, true);
+
+            timePickerDialog.show();
+        };
+
+        timeView.setOnClickListener(editClickListener);
+        editIcon.setOnClickListener(editClickListener);
 
         reminderTimeList.addView(row);
     }

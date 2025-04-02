@@ -59,14 +59,6 @@ public class HabitListFragment extends Fragment implements HabitAdapter.OnHabitC
                 R.drawable.baseline_water_drop_24, "Daily", 10));
         habitList.add(new Habit("Exercise", "30 minutes workout", false,
                 R.drawable.baseline_fitness_center_24, "Daily", 20));
-        habitList.add(new Habit("Drink Water", "Drink 8 glasses of water", false,
-                R.drawable.baseline_water_drop_24, "Daily", 10));
-        habitList.add(new Habit("Exercise", "30 minutes workout", false,
-                R.drawable.baseline_fitness_center_24, "Daily", 20));
-        habitList.add(new Habit("Drink Water", "Drink 8 glasses of water", false,
-                R.drawable.baseline_water_drop_24, "Daily", 10));
-        habitList.add(new Habit("Exercise", "30 minutes workout", false,
-                R.drawable.baseline_fitness_center_24, "Daily", 20));
 
         habitAdapter = new HabitAdapter(habitList, this);
         habitRecyclerView.setAdapter(habitAdapter);
@@ -169,8 +161,20 @@ public class HabitListFragment extends Fragment implements HabitAdapter.OnHabitC
         habit.setCompleted(isChecked);
 
         habitList.remove(fromPos);
-        habitList.add(habit);
-        int toPos = habitList.size() - 1;
+
+        int toPos;
+
+        if (isChecked) {
+            habitList.add(habit);
+            toPos = habitList.size() - 1;
+        } else {
+            int insertPos = 0;
+            while (insertPos < habitList.size() && !habitList.get(insertPos).isCompleted()) {
+                insertPos++;
+            }
+            habitList.add(insertPos, habit);
+            toPos = insertPos;
+        }
 
         habitAdapter.notifyItemMoved(fromPos, toPos);
         habitAdapter.notifyItemChanged(toPos);
