@@ -1,19 +1,78 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/statsTV"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".StatsActivity">
+    android:padding="16dp"
+    android:background="#FFFFFF">
 
-    <TextView
-        android:id="@+id/textView3"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Stats"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+        android:orientation="vertical"
+        android:gravity="center_horizontal">
+
+        <!-- Title -->
+        <TextView
+            android:id="@+id/statsTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Your Stats"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:paddingBottom="24dp"/>
+
+        <!-- Total Habits -->
+        <TextView
+            android:id="@+id/totalHabitsTV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Total Habits: 0"
+            android:textSize="16sp"
+            android:paddingBottom="8dp" />
+
+        <!-- Streak Display -->
+        <TextView
+            android:id="@+id/currentStreakTV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Current Streak: 0 days"
+            android:textSize="16sp"
+            android:paddingBottom="16dp" />
+
+        <TextView
+            android:id="@+id/longestStreakTV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Longest Streak: 0 days"
+            android:textSize="16sp"
+            android:paddingBottom="16dp" />
+
+        <TextView
+            android:id="@+id/topHabitTV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Longest Streak: 0 days"
+            android:textSize="16sp"
+            android:paddingBottom="16dp" />
+
+        <!-- Weekly Completion Chart -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Weekly Completions"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:paddingBottom="8dp" />
+
+        <com.github.mikephil.charting.charts.BarChart
+            android:id="@+id/barChart"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:layout_marginTop="8dp"
+            tools:ignore="MissingClass" />
+
+
+    </LinearLayout>
+</ScrollView>
