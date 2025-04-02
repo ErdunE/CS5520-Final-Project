@@ -42,7 +42,7 @@ public class ReminderReceiver extends BroadcastReceiver {
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true);
 
-        Log.d("ReminderReceiver", "Notification triggered for: " + title);
+        Log.d("ReminderReceiver", "Notification triggered for: " + title + " → " + message);
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
         if (ContextCompat.checkSelfPermission(context, android.Manifest.permission.POST_NOTIFICATIONS)
                 == PackageManager.PERMISSION_GRANTED) {

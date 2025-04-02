@@ -59,14 +59,6 @@ public class HabitListFragment extends Fragment implements HabitAdapter.OnHabitC
                 R.drawable.baseline_water_drop_24, "Daily", 10));
         habitList.add(new Habit("Exercise", "30 minutes workout", false,
                 R.drawable.baseline_fitness_center_24, "Daily", 20));
-        habitList.add(new Habit("Drink Water", "Drink 8 glasses of water", false,
-                R.drawable.baseline_water_drop_24, "Daily", 10));
-        habitList.add(new Habit("Exercise", "30 minutes workout", false,
-                R.drawable.baseline_fitness_center_24, "Daily", 20));
-        habitList.add(new Habit("Drink Water", "Drink 8 glasses of water", false,
-                R.drawable.baseline_water_drop_24, "Daily", 10));
-        habitList.add(new Habit("Exercise", "30 minutes workout", false,
-                R.drawable.baseline_fitness_center_24, "Daily", 20));
 
         habitAdapter = new HabitAdapter(habitList, this);
         habitRecyclerView.setAdapter(habitAdapter);

@@ -125,17 +125,28 @@ public class DashboardActivity extends AppCompatActivity {
 //            }
 //        });
 
-        // Test code for reminder, current + 10s
-        Calendar testTime = Calendar.getInstance();
-        testTime.add(Calendar.SECOND, 10);
-        List<Calendar> testTimes = new ArrayList<>();
-        testTimes.add(testTime);
-        ReminderScheduler.scheduleReminders(
-                DashboardActivity.this,
-                999,
-                "Test Water Reminder",
-                testTimes
-        );
+        // Test code for reminder, current + per 10s
+        String[] testHabitTitles = {
+                "Drink Water", "Workout", "Read Books", "Meditate"
+        };
+
+        for (int i = 0; i < testHabitTitles.length; i++) {
+            Calendar testTime = Calendar.getInstance();
+            testTime.add(Calendar.SECOND, 10 * (i + 1));
+
+            String habitTitle = testHabitTitles[i];
+            String message = ReminderMessagePool.getRandomMessage(habitTitle);
+
+            List<Calendar> testTimes = new ArrayList<>();
+            testTimes.add(testTime);
+
+            ReminderScheduler.scheduleReminders(
+                    DashboardActivity.this,
+                    900 + i,
+                    habitTitle,
+                    testTimes
+            );
+        }
     }
 
     // Pop up dialog after click add button
