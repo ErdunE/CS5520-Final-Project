@@ -117,15 +117,26 @@ public class GardenView extends View {
         }
     }
 
-    // Method to add a new plant
+    // Method to add a new plant - removed plant limit
     public void addPlant(String habitName) {
-        if (plants.size() < 5) { // Limit number of plants
-            float x = getWidth() * (0.2f + random.nextFloat() * 0.6f); // Random position between 20-80% of width
-            plants.add(new Plant(x, groundLevel, habitName));
-            invalidate(); // Redraw the view
-        }
-    }
+        // Get available width (from 10% to 90% of the garden width)
+        float availableWidth = getWidth() * 0.8f;
 
+        // Calculate a position with some randomness
+        // Use modulo to create a wrapping effect for better distribution
+        int plantCount = plants.size();
+        float basePosition = (plantCount % 5) / 5.0f; // This cycles through 0.0, 0.2, 0.4, 0.6, 0.8
+
+        // Add randomness within a small range around the base position
+        float randomOffset = (random.nextFloat() - 0.5f) * 0.15f;
+        float xPosition = getWidth() * (0.1f + basePosition + randomOffset);
+
+        // Ensure position stays within bounds
+        xPosition = Math.max(getWidth() * 0.1f, Math.min(xPosition, getWidth() * 0.9f));
+
+        plants.add(new Plant(xPosition, groundLevel, habitName));
+        invalidate(); // Redraw the view
+    }
     // Method to grow a specific plant (increase its growth stage)
     public void growPlant(int plantIndex) {
         if (plantIndex >= 0 && plantIndex < plants.size()) {

@@ -51,17 +51,12 @@ public class GardenFragment extends Fragment {
     }
 
     public void addNewPlant() {
-        // In a real application, this would be connected to the habits list
-        // For now, just add a placeholder plant
-        if (gardenView.getPlantCount() < 5) {
-            gardenView.addPlant("New Habit " + (gardenView.getPlantCount() + 1));
-            Toast.makeText(getContext(), "Added new plant!", Toast.LENGTH_SHORT).show();
+        // Removing the limit check - allow unlimited plants
+        gardenView.addPlant("New Habit " + (gardenView.getPlantCount() + 1));
+        Toast.makeText(getContext(), "Added new plant!", Toast.LENGTH_SHORT).show();
 
-            // Update the plant selector
-            updatePlantSelector();
-        } else {
-            Toast.makeText(getContext(), "Garden is full! Complete existing habits first.", Toast.LENGTH_SHORT).show();
-        }
+        // Update the plant selector
+        updatePlantSelector();
     }
 
     private void setupTestControls() {
