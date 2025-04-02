@@ -18,6 +18,7 @@ public class GardenFragment extends Fragment {
     private GardenView gardenView;
     private Spinner plantSelector;
     private Button testGrowButton;
+    private Button addPlantButton;
 
     @Nullable
     @Override
@@ -35,8 +36,9 @@ public class GardenFragment extends Fragment {
         gardenView = view.findViewById(R.id.gardenView);
         plantSelector = view.findViewById(R.id.plantSelector);
         testGrowButton = view.findViewById(R.id.testGrowButton);
+        addPlantButton = view.findViewById(R.id.addPlantButton);
 
-        // Set up garden
+        // Set up garden - we're not adding initial plants anymore
         setupGarden();
 
         // Set up test controls
@@ -44,10 +46,8 @@ public class GardenFragment extends Fragment {
     }
 
     private void setupGarden() {
-        // Add some initial plants for testing
-        gardenView.addPlant("Daily Exercise");
-        gardenView.addPlant("Reading");
-        gardenView.addPlant("Meditation");
+        // We're not adding initial plants anymore
+        // The garden will start empty
     }
 
     public void addNewPlant() {
@@ -81,6 +81,11 @@ public class GardenFragment extends Fragment {
                         "Please select a plant to grow",
                         Toast.LENGTH_SHORT).show();
             }
+        });
+
+        // Set up add plant button
+        addPlantButton.setOnClickListener(v -> {
+            addNewPlant();
         });
     }
 

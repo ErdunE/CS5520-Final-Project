@@ -30,10 +30,18 @@
         app:layout_constraintEnd_toEndOf="parent">
 
         <Button
+            android:id="@+id/addPlantButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Plant Seed"
+            android:backgroundTint="#8BC34A"
+            android:layout_marginEnd="8dp" />
+
+        <Button
             android:id="@+id/testGrowButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Test Growth"
+            android:text="Water Plant"
             android:backgroundTint="#4CAF50"
             android:layout_marginEnd="8dp" />
 
