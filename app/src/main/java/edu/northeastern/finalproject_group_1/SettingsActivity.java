@@ -54,7 +54,10 @@ public class SettingsActivity extends AppCompatActivity {
                         "Habitend v1.0.0\n\n" +
                         "A habit tracking app with a growing garden!\n\n" +
                         "Developed by Group 1:\n" +
-                        "Jenny Nguyen, Erdun E, Alp Yalcinkaya, Megan Heinhold\n" +
+                        "Jenny Nguyen\n" +
+                        "Erdun E\n" +
+                        "Alp Yalcinkaya\n" +
+                        "Megan Heinhold\n" +
                         "for CS5520 Mobile App Development\n" +
                         "Khoury College, Northeastern University\n\n" +
                         "This app is a course project and intended for educational use only.\n\n" +
