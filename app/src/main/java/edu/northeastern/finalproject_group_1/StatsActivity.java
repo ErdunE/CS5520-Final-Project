@@ -1,7 +1,10 @@
 package edu.northeastern.finalproject_group_1;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,10 +30,13 @@ import java.util.List;
 
 public class StatsActivity extends AppCompatActivity {
 
-    private TextView totalHabitsTV, currentStreakTV, longestStreakTV, topHabitTV;
+    private TextView usernameTV, goldTV, totalHabitsTV, currentStreakTV, longestStreakTV, completedHabitsTV, levelTV;
     private BarChart barChart;
-    private String userId = "testUser1";
-    private DatabaseReference habitsRef;
+    private ProgressBar xpProgressBar;
+    private TextView playerName, playerLevel;
+    private String currentUser;
+    private ImageView levelBadge;
+    private DatabaseReference habitsRef, gardenRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,14 +44,25 @@ public class StatsActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_stats);
 
+        // Retrieve username from Intent
+        currentUser = getIntent().getStringExtra("USERNAME");
+        if (currentUser == null) currentUser = "testUser1";
+
+        usernameTV = findViewById(R.id.usernameTV);
+        levelTV = findViewById(R.id.levelTV);
+
         totalHabitsTV = findViewById(R.id.totalHabitsTV);
         currentStreakTV = findViewById(R.id.currentStreakTV);
         longestStreakTV = findViewById(R.id.longestStreakTV);
-        topHabitTV = findViewById(R.id.topHabitTV);
+        completedHabitsTV = findViewById(R.id.completedHabitsTV);
         barChart = findViewById(R.id.barChart);
+        xpProgressBar = findViewById(R.id.xpProgressBar);
+        levelBadge = findViewById(R.id.levelBadgeImage);
 
-        habitsRef = FirebaseDatabase.getInstance().getReference("HABITS").child(userId);
+        gardenRef = FirebaseDatabase.getInstance().getReference("GARDENDATA").child(currentUser);
+        habitsRef = FirebaseDatabase.getInstance().getReference("HABITS").child(currentUser);
 
+        usernameTV.setText("Hi, " + currentUser);
         loadHabitStats();
         setupBarChart();
     }
@@ -55,23 +72,38 @@ public class StatsActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 int total = 0;
+                int completed = 0;
                 for (DataSnapshot habitSnap : snapshot.getChildren()) {
-                    if (habitSnap.getValue() != null) {
+                    if (habitSnap.exists() && habitSnap.child("isCompleted").getValue() != null) {
                         total++;
+                        boolean isCompleted = Boolean.TRUE.equals(habitSnap.child("isCompleted").getValue(Boolean.class));
+                        if (isCompleted) completed++;
                     }
                 }
-                totalHabitsTV.setText("Total Habits: " + total);
 
-                // Placeholder values
-                currentStreakTV.setText("Current Streak: 3 days");
-                longestStreakTV.setText("Longest Streak: 10 days");
-                topHabitTV.setText("Most Completed: Drink Water");
+                int xp = completed * 100; // 100 XP per completed habit
+                int level = xp / 500;     // 500 XP per level
+                int progress = xp % 500;
+
+                totalHabitsTV.setText(String.valueOf(total));
+                completedHabitsTV.setText("Habits Completed: " + completed);
+                levelTV.setText("Level " + level);
+                xpProgressBar.setMax(500);
+                xpProgressBar.setProgress(progress);
+
+                // Set badge based on level
+                if (level >= 10) {
+                    levelBadge.setImageResource(R.drawable.gold_medal);
+                } else if (level >= 5) {
+                    levelBadge.setImageResource(R.drawable.silver_medal);
+                } else if (level >= 0){
+                    levelBadge.setImageResource(R.drawable.bronze_medal);
+                }
+
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(StatsActivity.this, "Failed to load stats", Toast.LENGTH_SHORT).show();
-            }
+            public void onCancelled(@NonNull DatabaseError error) {}
         });
     }
 

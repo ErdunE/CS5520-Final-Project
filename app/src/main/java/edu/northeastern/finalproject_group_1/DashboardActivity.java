@@ -104,7 +104,9 @@ public class DashboardActivity extends AppCompatActivity {
                     startActivity(new Intent(DashboardActivity.this, ChallengesActivity.class));
                     return true;
                 } else if (itemId == R.id.Stats) {
-                    startActivity(new Intent(DashboardActivity.this, StatsActivity.class));
+                    Intent intent = new Intent(DashboardActivity.this, StatsActivity.class);
+                    intent.putExtra("USERNAME", currentUser);
+                    startActivity(intent);
                     return true;
                 } else if (itemId == R.id.Settings) {
                     startActivity(new Intent(DashboardActivity.this, SettingsActivity.class));
