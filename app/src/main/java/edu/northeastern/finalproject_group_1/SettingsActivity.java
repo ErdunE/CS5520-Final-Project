@@ -3,6 +3,7 @@ package edu.northeastern.finalproject_group_1;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -21,6 +22,15 @@ public class SettingsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
+
+        TextView usernameTextView = findViewById(R.id.usernameText);
+        TextView userIdTextView = findViewById(R.id.userIdText);
+
+        String username = getSharedPreferences("HabitendPrefs", MODE_PRIVATE)
+                .getString("logged_in_username", "Guest");
+
+        usernameTextView.setText(username);
+        userIdTextView.setText("ID: " + username);
 
         RecyclerView recyclerView = findViewById(R.id.settingsRecyclerView);
         List<SettingOption> options = Arrays.asList(
