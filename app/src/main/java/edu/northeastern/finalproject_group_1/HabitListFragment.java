@@ -76,6 +76,11 @@ public class HabitListFragment extends Fragment implements HabitAdapter.OnHabitC
         habitRecyclerView = view.findViewById(R.id.habitRecyclerView);
         habitRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
+        //create empty habit list in case user has no habits
+        habitList = new ArrayList<>();
+        habitAdapter = new HabitAdapter(habitList, this);
+        habitRecyclerView.setAdapter(habitAdapter);
+
         Log.d("HabitListFragment", "Fragment has username to find: " + this.currentUser);
         db = FirebaseDatabase.getInstance();
         fetchHabits(currentUser);
@@ -225,7 +230,12 @@ public class HabitListFragment extends Fragment implements HabitAdapter.OnHabitC
     }
 
     public void updateHabitList(List<Habit> habitList) {
-        this.habitList = habitList;
+        if (habitList == null) {
+            this.habitList = new ArrayList<>();
+        } else {
+            this.habitList = habitList;
+        }
+        Log.d(TAG, String.valueOf(this.habitList.size()));
         habitAdapter = new HabitAdapter(habitList, this);
         habitRecyclerView.setAdapter(habitAdapter);
     }
@@ -257,6 +267,11 @@ public class HabitListFragment extends Fragment implements HabitAdapter.OnHabitC
     }
 
     public void addHabit(Habit newHabit) {
+        //connect to db to add the habit:
+        DatabaseReference dbHabits = db.getReference("HABITS");
+        String key = dbHabits.child(currentUser).push().getKey();
+        dbHabits.child(currentUser).child(key).setValue(newHabit);
+        //wondering if these are needed since this will trigger db listener?
         int insertPos = 0;
         while (insertPos < habitList.size() && !habitList.get(insertPos).isCompleted()) {
             insertPos++;
