@@ -1,5 +1,7 @@
 package edu.northeastern.finalproject_group_1;
 
+import android.util.Log;
+
 import java.util.Calendar;
 import java.util.List;
 
@@ -7,7 +9,7 @@ public class Habit {
     private String title;
     private String description;
     private boolean isCompleted;
-    private int icon;
+    private int iconResId;
     private String schedule;
     private int reward;
     private String customIconUri;
@@ -22,12 +24,12 @@ public class Habit {
 
     public Habit() {}
 
-    public Habit(String title, String description, boolean isCompleted, int icon, String schedule, int reward, String customIconUri, int customColor, String repeatUnit, int every, List<Integer> weekdays,
+    public Habit(String title, String description, boolean isCompleted, int iconResId, String schedule, int reward, String customIconUri, int customColor, String repeatUnit, int every, List<Integer> weekdays,
                  Calendar startDate, Calendar endDate, List<String> reminderTimes) {
         this.title = title;
         this.description = description;
         this.isCompleted = isCompleted;
-        this.icon = icon;
+        this.iconResId = iconResId;
         this.schedule = schedule;
         this.reward = reward;
         this.customIconUri = customIconUri;
@@ -42,6 +44,7 @@ public class Habit {
 
     public Habit(String title, String description, boolean completed, int iconResId, String repeatOption, int streak) {
         this(title, description, completed, iconResId, repeatOption, streak, null, 0, "Daily", 1, null, null, null, null);
+        Log.d("HABIT", String.valueOf(iconResId));
     }
 
     public Habit(String title, String description, boolean completed, int iconResId, String repeatOption, int streak, String customIconUri) {
@@ -51,7 +54,10 @@ public class Habit {
     public String getTitle() { return title; }
     public String getDescription() { return description; }
     public boolean isCompleted() { return isCompleted; }
-    public int getIcon() { return icon; }
+    public int getIconResId() { return iconResId; }
+    public void setIconResId(int iconResId) {
+        this.iconResId = iconResId;
+    }
     public String getSchedule() { return schedule; }
     public int getReward() { return reward; }
     public String getCustomIconUri() { return customIconUri; }

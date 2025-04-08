@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.MenuItem;
-import android.view.View;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -16,7 +15,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -272,7 +270,7 @@ public class DashboardActivity extends AppCompatActivity {
         args.putInt("position", position);
         args.putString("title", habit.getTitle());
         args.putString("description", habit.getDescription());
-        args.putInt("iconResId", habit.getIcon());
+        args.putInt("iconResId", habit.getIconResId());
         args.putString("customIconUri", habit.getCustomIconUri());
         args.putInt("customColor", habit.getCustomColor());
         args.putString("repeatUnit", habit.getRepeatUnit());

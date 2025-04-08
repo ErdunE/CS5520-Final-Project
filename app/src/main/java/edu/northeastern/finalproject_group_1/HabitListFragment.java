@@ -20,16 +20,23 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class HabitListFragment extends Fragment implements HabitAdapter.OnHabitCheckListener{
+    private final String TAG = "HabitListFragment";
 
     private RecyclerView habitRecyclerView;
     private HabitAdapter habitAdapter;
     private List<Habit> habitList;
     private String currentUser;
+    private FirebaseDatabase db;
 
     // Factory method to pass in username to habit list fragment so it can use it to search db
     public static HabitListFragment newInstance(String user) {
@@ -70,16 +77,18 @@ public class HabitListFragment extends Fragment implements HabitAdapter.OnHabitC
         habitRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
         Log.d("HabitListFragment", "Fragment has username to find: " + this.currentUser);
+        db = FirebaseDatabase.getInstance();
+        fetchHabits(currentUser);
 
         // Fake Data
-        habitList = new ArrayList<>();
-        habitList.add(new Habit("Drink Water", "Drink 8 glasses of water", false,
-                R.drawable.baseline_water_drop_24, "Daily", 10));
-        habitList.add(new Habit("Exercise", "30 minutes workout", false,
-                R.drawable.baseline_fitness_center_24, "Daily", 20));
+//        habitList = new ArrayList<>();
+//        habitList.add(new Habit("Drink Water", "Drink 8 glasses of water", false,
+//                R.drawable.baseline_water_drop_24, "Daily", 10));
+//        habitList.add(new Habit("Exercise", "30 minutes workout", false,
+//                R.drawable.baseline_fitness_center_24, "Daily", 20));
 
-        habitAdapter = new HabitAdapter(habitList, this);
-        habitRecyclerView.setAdapter(habitAdapter);
+//        habitAdapter = new HabitAdapter(habitList, this);
+//        habitRecyclerView.setAdapter(habitAdapter);
 
         // Long press Helper
         ItemTouchHelper.Callback callback = new ItemTouchHelper.SimpleCallback(
@@ -172,6 +181,55 @@ public class HabitListFragment extends Fragment implements HabitAdapter.OnHabitC
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(callback);
         itemTouchHelper.attachToRecyclerView(habitRecyclerView);
     }
+
+    /**
+     * Helper method to get list of habits for user from db and add them to the habitList array
+     */
+    private void fetchHabits(String user) {
+        //get habits from db
+        DatabaseReference dbHABITS = db.getReference("HABITS");
+        //get habits just for current user
+        DatabaseReference myHabits = dbHABITS.child(user);
+        myHabits.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                habitList = new ArrayList<>();
+                Habit habit = snapshot.getValue(Habit.class);
+                Log.d(TAG, habit.toString());
+                habitList.add(habit);
+                updateHabitList(habitList);
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e(TAG, "Error loading habits from db: " + error);
+            }
+        });
+
+
+    }
+
+    public void updateHabitList(List<Habit> habitList) {
+        this.habitList = habitList;
+        habitAdapter = new HabitAdapter(habitList, this);
+        habitRecyclerView.setAdapter(habitAdapter);
+    }
+
 
     @Override
     public void onHabitCheckChanged(int fromPos, boolean isChecked) {
