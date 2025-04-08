@@ -37,11 +37,14 @@ public class DashboardActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        //Storing current user from login
-        Intent loginIntent = getIntent();
-        if (loginIntent.hasExtra("USERNAME")) {
-            currentUser = loginIntent.getStringExtra("USERNAME");
+        if (savedInstanceState != null) {
+            this.currentUser = savedInstanceState.getString("currentUser");
+        } else {
+            //Storing current user from parent activity
+            Intent parentIntent = getIntent();
+            if (parentIntent.hasExtra("USERNAME")) {
+                currentUser = parentIntent.getStringExtra("USERNAME");
+            }
         }
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
@@ -74,7 +77,7 @@ public class DashboardActivity extends AppCompatActivity {
         });
 
         // Set up navigation
-        setupNavigation();
+        setupNavigation(currentUser);
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.statsTV), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -83,9 +86,9 @@ public class DashboardActivity extends AppCompatActivity {
         });
     }
 
-    private void setupNavigation() {
+    private void setupNavigation(String currentUser) {
         // Initialize viewpager and adapter
-        pagerAdapter = new DashboardPagerAdapter(this);
+        pagerAdapter = new DashboardPagerAdapter(this, currentUser);
         viewPager.setAdapter(pagerAdapter);
 
         // Set viewpager orientation
@@ -96,18 +99,26 @@ public class DashboardActivity extends AppCompatActivity {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 int itemId = item.getItemId();
-
+                //pass along username to child activities
                 if (itemId == R.id.Shop) {
-                    startActivity(new Intent(DashboardActivity.this, MarketplaceActivity.class));
+                    Intent intent = new Intent(DashboardActivity.this, MarketplaceActivity.class);
+                    intent.putExtra("USERNAME", currentUser);
+                    startActivity(intent);
                     return true;
                 } else if (itemId == R.id.Challenges) {
-                    startActivity(new Intent(DashboardActivity.this, ChallengesActivity.class));
+                    Intent intent = new Intent(DashboardActivity.this, ChallengesActivity.class);
+                    intent.putExtra("USERNAME", currentUser);
+                    startActivity(intent);
                     return true;
                 } else if (itemId == R.id.Stats) {
-                    startActivity(new Intent(DashboardActivity.this, StatsActivity.class));
+                    Intent intent = new Intent(DashboardActivity.this, StatsActivity.class);
+                    intent.putExtra("USERNAME", currentUser);
+                    startActivity(intent);
                     return true;
                 } else if (itemId == R.id.Settings) {
-                    startActivity(new Intent(DashboardActivity.this, SettingsActivity.class));
+                    Intent intent = new Intent(DashboardActivity.this, SettingsActivity.class);
+                    intent.putExtra("USERNAME", currentUser);
+                    startActivity(intent);
                     return true;
                 }
                 return false;
@@ -295,5 +306,15 @@ public class DashboardActivity extends AppCompatActivity {
         } else {
             Log.w("DashboardActivity", "Invalid habit position: " + position);
         }
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString("currentUser", this.currentUser);
+    }
+
+    public String getCurrentUser() {
+        return this.currentUser;
     }
 }

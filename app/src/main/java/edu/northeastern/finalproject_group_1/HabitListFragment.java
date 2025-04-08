@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,6 +29,18 @@ public class HabitListFragment extends Fragment implements HabitAdapter.OnHabitC
     private RecyclerView habitRecyclerView;
     private HabitAdapter habitAdapter;
     private List<Habit> habitList;
+    private String currentUser;
+
+    // Factory method to pass in username to habit list fragment so it can use it to search db
+    public static HabitListFragment newInstance(String user) {
+        Log.d("HabitListFragment", "Username passed in: " + user);
+        HabitListFragment fragment = new HabitListFragment();
+        Bundle args = new Bundle();
+        args.putString("USERNAME", user);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
 
     public List<Habit> getHabitList() {
         return habitList;
@@ -42,6 +55,9 @@ public class HabitListFragment extends Fragment implements HabitAdapter.OnHabitC
     public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
+        if (getArguments() != null) {
+            currentUser = getArguments().getString("USERNAME", "");
+        }
         return inflater.inflate(R.layout.fragment_habit_list, container, false);
     }
 
@@ -52,6 +68,8 @@ public class HabitListFragment extends Fragment implements HabitAdapter.OnHabitC
 
         habitRecyclerView = view.findViewById(R.id.habitRecyclerView);
         habitRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        Log.d("HabitListFragment", "Fragment has username to find: " + this.currentUser);
 
         // Fake Data
         habitList = new ArrayList<>();
@@ -231,4 +249,11 @@ public class HabitListFragment extends Fragment implements HabitAdapter.OnHabitC
         });
         snackbar.show();
     }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+        savedInstanceState.putString("currentUser", currentUser);
+    }
+
 }
