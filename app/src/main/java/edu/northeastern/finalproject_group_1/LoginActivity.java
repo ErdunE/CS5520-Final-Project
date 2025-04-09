@@ -88,6 +88,12 @@ public class LoginActivity extends AppCompatActivity {
 
     private void logIn(String username) {
         Log.d(TAG, "Logging " + username + " in");
+
+        getSharedPreferences("HabitendPrefs", MODE_PRIVATE)
+                .edit()
+                .putString("logged_in_username", username)
+                .apply();
+
         Intent intent = new Intent(LoginActivity.this, DashboardActivity.class);
         intent.putExtra("USERNAME", username);
         startActivity(intent);

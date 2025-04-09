@@ -181,8 +181,12 @@ public class HabitListFragment extends Fragment implements HabitAdapter.OnHabitC
     }
 
     public void addHabit(Habit newHabit) {
-        habitList.add(newHabit);
-        habitAdapter.notifyItemInserted(habitList.size() - 1);
+        int insertPos = 0;
+        while (insertPos < habitList.size() && !habitList.get(insertPos).isCompleted()) {
+            insertPos++;
+        }
+        habitList.add(insertPos, newHabit);
+        habitAdapter.notifyItemInserted(insertPos);
     }
 
     public void updateHabit(int position, String newTitle, String newDescription) {
