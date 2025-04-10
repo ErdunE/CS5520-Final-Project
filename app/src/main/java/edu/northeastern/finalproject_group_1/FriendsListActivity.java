@@ -1,8 +1,10 @@
 package edu.northeastern.finalproject_group_1;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -34,6 +36,8 @@ public class FriendsListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_friends_list);
 
         Toolbar toolbar = findViewById(R.id.friendsToolbar);
+        toolbar.setTitle("Friends List");
+        toolbar.setTitleTextColor(Color.WHITE);
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -41,6 +45,7 @@ public class FriendsListActivity extends AppCompatActivity {
             getSupportActionBar().setTitle("Friends List");
         }
         toolbar.setNavigationOnClickListener(v -> onBackPressed());
+
 
         recyclerView = findViewById(R.id.recyclerViewFriends);
         emptyView = findViewById(R.id.emptyView);
@@ -55,6 +60,18 @@ public class FriendsListActivity extends AppCompatActivity {
         if (currentUsername != null) {
             fetchFriendsFromFirebase(currentUsername);
         }
+
+        Button backButton = findViewById(R.id.backButton);
+        Button addFriendButton = findViewById(R.id.addFriendButton);
+
+        backButton.setOnClickListener(v -> onBackPressed());
+
+        addFriendButton.setOnClickListener(v -> {
+            AddFriendDialog dialog = new AddFriendDialog(currentUsername, () -> {
+                fetchFriendsFromFirebase(currentUsername);
+            });
+            dialog.show(getSupportFragmentManager(), "AddFriendDialog");
+        });
     }
 
     private void fetchFriendsFromFirebase(String username) {
