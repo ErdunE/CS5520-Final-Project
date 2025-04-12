@@ -38,12 +38,22 @@ public class StatsActivity extends AppCompatActivity {
     private BottomNavigationView bottomNavigationView;
     private FloatingActionButton fab;
     private LinearLayout achievementIconsLayout;
+    FloatingActionButton gardenButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_stats);
+
+        gardenButton = findViewById(R.id.gardenButton);
+
+        // Setup garden FAB
+        gardenButton.setOnClickListener(v -> {
+            Intent intent = new Intent(StatsActivity.this, DashboardActivity.class);
+            startActivity(intent);
+        });
+
 
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -67,13 +77,6 @@ public class StatsActivity extends AppCompatActivity {
                 return false;
             }
         });
-
-        fab = findViewById(R.id.fab);
-
-        // Add button Click Listener
-//        fab.setOnClickListener(v -> {
-//            showAddHabitDialog();
-//        });
 
 
         // Retrieve username from Intent
