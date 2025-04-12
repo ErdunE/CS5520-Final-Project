@@ -27,6 +27,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,7 +43,7 @@ public class HabitListFragment extends Fragment implements HabitAdapter.OnHabitC
 
     // Factory method to pass in username to habit list fragment so it can use it to search db
     public static HabitListFragment newInstance(String user) {
-        Log.d("HabitListFragment", "Username passed in: " + user);
+        //Log.d("HabitListFragment", "Username passed in: " + user);
         HabitListFragment fragment = new HabitListFragment();
         Bundle args = new Bundle();
         args.putString("USERNAME", user);
@@ -83,7 +84,7 @@ public class HabitListFragment extends Fragment implements HabitAdapter.OnHabitC
         habitAdapter = new HabitAdapter(habitList, this);
         habitRecyclerView.setAdapter(habitAdapter);
 
-        Log.d("HabitListFragment", "Fragment has username to find: " + this.currentUser);
+        //Log.d("HabitListFragment", "Fragment has username to find: " + this.currentUser);
         db = FirebaseDatabase.getInstance();
         fetchHabits(currentUser);
 
@@ -197,7 +198,7 @@ public class HabitListFragment extends Fragment implements HabitAdapter.OnHabitC
         DatabaseReference dbHABITS = db.getReference("HABITS");
         //get habits just for current user
         DatabaseReference myHabits = dbHABITS.child(user);
-        myHabits.addChildEventListener(new ChildEventListener() {
+        /*myHabits.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
                 habitList = new ArrayList<>();
@@ -211,7 +212,7 @@ public class HabitListFragment extends Fragment implements HabitAdapter.OnHabitC
 
             @Override
             public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-                //TODO
+
             }
 
             @Override
@@ -222,6 +223,25 @@ public class HabitListFragment extends Fragment implements HabitAdapter.OnHabitC
             @Override
             public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
 
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e(TAG, "Error loading habits from db: " + error);
+            }
+        });*/
+        myHabits.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                habitList = new ArrayList<>();
+                for (DataSnapshot h: snapshot.getChildren()) {
+                    Habit habit = h.getValue(Habit.class);
+                    habit.setHabitKey(h.getKey());
+                    Log.d(TAG, "Habit key: " + habit.getHabitKey());
+                    //Log.d(TAG, habit.toString());
+                    habitList.add(habit);
+                }
+                updateHabitList(habitList);
             }
 
             @Override
@@ -239,7 +259,7 @@ public class HabitListFragment extends Fragment implements HabitAdapter.OnHabitC
         } else {
             this.habitList = habitList;
         }
-        Log.d(TAG, String.valueOf(this.habitList.size()));
+        //Log.d(TAG, String.valueOf(this.habitList.size()));
         habitAdapter = new HabitAdapter(habitList, this);
         habitRecyclerView.setAdapter(habitAdapter);
     }
@@ -276,12 +296,12 @@ public class HabitListFragment extends Fragment implements HabitAdapter.OnHabitC
         String key = dbHabits.child(currentUser).push().getKey();
         dbHabits.child(currentUser).child(key).setValue(newHabit);
         //wondering if these are needed since this will trigger db listener?
-        int insertPos = 0;
-        while (insertPos < habitList.size() && !habitList.get(insertPos).isCompleted()) {
-            insertPos++;
-        }
-        habitList.add(insertPos, newHabit);
-        habitAdapter.notifyItemInserted(insertPos);
+//        int insertPos = 0;
+//        while (insertPos < habitList.size() && !habitList.get(insertPos).isCompleted()) {
+//            insertPos++;
+//        }
+//        habitList.add(insertPos, newHabit);
+//        habitAdapter.notifyItemInserted(insertPos);
     }
 
     public void editHabit(Habit updatedHabit) {
