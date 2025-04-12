@@ -1,5 +1,7 @@
 package edu.northeastern.finalproject_group_1;
 
+import static java.util.Objects.isNull;
+
 import android.graphics.Canvas;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -200,6 +202,8 @@ public class HabitListFragment extends Fragment implements HabitAdapter.OnHabitC
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
                 habitList = new ArrayList<>();
                 Habit habit = snapshot.getValue(Habit.class);
+                habit.setHabitKey(snapshot.getKey());
+                Log.d(TAG, habit.getHabitKey());
                 Log.d(TAG, habit.toString());
                 habitList.add(habit);
                 updateHabitList(habitList);
@@ -207,7 +211,7 @@ public class HabitListFragment extends Fragment implements HabitAdapter.OnHabitC
 
             @Override
             public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-
+                //TODO
             }
 
             @Override
@@ -278,6 +282,15 @@ public class HabitListFragment extends Fragment implements HabitAdapter.OnHabitC
         }
         habitList.add(insertPos, newHabit);
         habitAdapter.notifyItemInserted(insertPos);
+    }
+
+    public void editHabit(Habit updatedHabit) {
+        if (!isNull(updatedHabit.getHabitKey())) {
+            DatabaseReference dbHabits = db.getReference("HABITS");
+            dbHabits.child(currentUser).child(updatedHabit.getHabitKey()).setValue(updatedHabit);
+        } else {
+            Log.d(TAG, "Trying to update a habit without a key");
+        }
     }
 
     public void updateHabit(int position, String newTitle, String newDescription) {

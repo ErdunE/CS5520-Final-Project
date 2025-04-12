@@ -62,6 +62,7 @@ public class AddHabitDialogFragment extends DialogFragment {
     private Button btnEndDate;
     private Calendar startDate = Calendar.getInstance();
     private Calendar endDate = Calendar.getInstance();
+    private String habitKey;
     private int selectedColor = Color.BLACK;
     private LinearLayout reminderTimeList;
 
@@ -83,6 +84,7 @@ public class AddHabitDialogFragment extends DialogFragment {
             position = getArguments().getInt("position", -1);
             oldTitle = getArguments().getString("title", "");
             oldDescription = getArguments().getString("description", "");
+            habitKey = getArguments().getString("habitKey",null);
         }
 
         // Top controls
@@ -359,7 +361,8 @@ public class AddHabitDialogFragment extends DialogFragment {
                     selectedWeekdays,
                     startDate.getTimeInMillis(),
                     endDate.getTimeInMillis(),
-                    reminderTimes
+                    reminderTimes,
+                    habitKey
             );
 
             if (isEditMode) {

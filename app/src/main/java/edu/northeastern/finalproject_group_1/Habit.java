@@ -1,7 +1,10 @@
 package edu.northeastern.finalproject_group_1;
 
+import static java.util.Objects.isNull;
+
 import android.util.Log;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
@@ -22,12 +25,13 @@ public class Habit {
     private long startDateMillis;
     private long endDateMillis;
     private List<String> reminderTimes;
+    private String habitKey;
 
 
     public Habit() {}
 
     public Habit(String title, String description, boolean isCompleted, int iconResId, String schedule, int reward, String customIconUri, int customColor, String repeatUnit, int every, List<Integer> weekdays,
-                 long startDate, long endDate, List<String> reminderTimes) {
+                 long startDate, long endDate, List<String> reminderTimes, String habitKey) {
         this.title = title;
         this.description = description;
         this.isCompleted = isCompleted;
@@ -42,15 +46,16 @@ public class Habit {
         this.startDateMillis = startDate;
         this.endDateMillis = endDate;
         this.reminderTimes = reminderTimes;
+        this.habitKey = habitKey;
     }
 
     public Habit(String title, String description, boolean completed, int iconResId, String repeatOption, int streak) {
-        this(title, description, completed, iconResId, repeatOption, streak, null, 0, "Daily", 1, null, -1, -1, null);
+        this(title, description, completed, iconResId, repeatOption, streak, null, 0, "Daily", 1, new ArrayList<>(), -1, -1, null, null);
         Log.d("HABIT", String.valueOf(iconResId));
     }
 
     public Habit(String title, String description, boolean completed, int iconResId, String repeatOption, int streak, String customIconUri) {
-        this(title, description, completed, iconResId, repeatOption, streak, customIconUri, 0, "Daily", 1, null, -1, -1, null);
+        this(title, description, completed, iconResId, repeatOption, streak, customIconUri, 0, "Daily", 1, new ArrayList<>(), -1, -1, null, null);
     }
 
     public String getTitle() { return title; }
@@ -76,7 +81,13 @@ public class Habit {
     public int getEvery() { return every; }
     public void setEvery(int every) { this.every = every; }
 
-    public List<Integer> getWeekdays() { return weekdays; }
+    public List<Integer> getWeekdays() {
+        if (!isNull(weekdays)) {
+            return weekdays;
+        }
+        weekdays = new ArrayList<>();
+        return weekdays;
+    }
     public void setWeekdays(List<Integer> weekdays) { this.weekdays = weekdays; }
 
     /*public Calendar getStartDate() { return startDate; }
@@ -99,6 +110,20 @@ public class Habit {
         this.endDateMillis = endDateMillis;
     }
 
-    public List<String> getReminderTimes() { return reminderTimes; }
+    public List<String> getReminderTimes() {
+        if(!isNull(reminderTimes)){
+            return reminderTimes;
+        } else {
+            reminderTimes = new ArrayList<>();
+            return reminderTimes;
+        }
+    }
     public void setReminderTimes(List<String> reminderTimes) { this.reminderTimes = reminderTimes; }
+    public String getHabitKey(){
+        return habitKey;
+    }
+
+    public void setHabitKey(String habitKey) {
+        this.habitKey = habitKey;
+    }
 }

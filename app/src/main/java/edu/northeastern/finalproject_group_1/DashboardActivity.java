@@ -1,5 +1,7 @@
 package edu.northeastern.finalproject_group_1;
 
+import static java.util.Objects.isNull;
+
 import android.app.AlarmManager;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -286,6 +288,7 @@ public class DashboardActivity extends AppCompatActivity {
         args.putLong("startDate", habit.getStartDateMillis());
         args.putLong("endDate", habit.getEndDateMillis());
         args.putStringArrayList("reminderTimes", new ArrayList<>(habit.getReminderTimes()));
+        args.putString("habitKey", habit.getHabitKey());
         dialog.setArguments(args);
 
         dialog.show(getSupportFragmentManager(), "EditHabitDialog");
@@ -300,6 +303,10 @@ public class DashboardActivity extends AppCompatActivity {
             return;
         }
 
+        //update existing habit in db if the key is set
+        if (!isNull(updatedHabit.getHabitKey())) {
+            fragment.editHabit(updatedHabit);
+        }
         List<Habit> habitList = fragment.getHabitList();
         if (position >= 0 && position < habitList.size()) {
             Habit oldHabit = habitList.get(position);
