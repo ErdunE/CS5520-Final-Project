@@ -179,8 +179,8 @@ public class DashboardActivity extends AppCompatActivity {
         Log.d("NewHabit", "Repeat Unit: " + newHabit.getRepeatUnit());
         Log.d("NewHabit", "Every: " + newHabit.getEvery());
         Log.d("NewHabit", "Weekdays: " + newHabit.getWeekdays());
-        Log.d("NewHabit", "Start Date: " + (newHabit.getStartDate() != null ? newHabit.getStartDate().getTime().toString() : "null"));
-        Log.d("NewHabit", "End Date: " + (newHabit.getEndDate() != null ? newHabit.getEndDate().getTime().toString() : "null"));
+        //Log.d("NewHabit", "Start Date: " + (newHabit.getStartDateMillis() != null ? newHabit.getStartDateMillis() : "null"));
+        //Log.d("NewHabit", "End Date: " + (newHabit.getEndDate() != null ? newHabit.getEndDate().getTime().toString() : "null"));
         Log.d("NewHabit", "Reminder Times: " + newHabit.getReminderTimes());
         Log.d("NewHabit", "Custom Icon URI: " + newHabit.getCustomIconUri());
         Log.d("NewHabit", "Color: " + newHabit.getCustomColor());
@@ -199,10 +199,13 @@ public class DashboardActivity extends AppCompatActivity {
                 timeCalendars.add(cal);
             }
         }
-
+        Calendar cS = Calendar.getInstance();
+        cS.setTimeInMillis(newHabit.getStartDateMillis());
+        Calendar cE = Calendar.getInstance();
+        cE.setTimeInMillis(newHabit.getEndDateMillis());
         List<Calendar> reminderTimes = ReminderTimeGenerator.generateReminderTimes(
-                newHabit.getStartDate(),
-                newHabit.getEndDate(),
+                cS,
+                cE,
                 ReminderTimeGenerator.RepeatUnit.valueOf(newHabit.getRepeatUnit().toUpperCase()),
                 newHabit.getEvery(),
                 newHabit.getWeekdays(),
@@ -247,9 +250,13 @@ public class DashboardActivity extends AppCompatActivity {
             }
         }
 
+        Calendar start = Calendar.getInstance();
+        start.setTimeInMillis(habit.getStartDateMillis());
+        Calendar end = Calendar.getInstance();
+        end.setTimeInMillis(habit.getEndDateMillis());
         List<Calendar> reminderTimes = ReminderTimeGenerator.generateReminderTimes(
-                habit.getStartDate(),
-                habit.getEndDate(),
+                start,
+                end,
                 unit,
                 habit.getEvery(),
                 habit.getWeekdays(),
@@ -276,8 +283,8 @@ public class DashboardActivity extends AppCompatActivity {
         args.putString("repeatUnit", habit.getRepeatUnit());
         args.putInt("every", habit.getEvery());
         args.putIntegerArrayList("weekdays", new ArrayList<>(habit.getWeekdays()));
-        args.putLong("startDate", habit.getStartDate().getTimeInMillis());
-        args.putLong("endDate", habit.getEndDate().getTimeInMillis());
+        args.putLong("startDate", habit.getStartDateMillis());
+        args.putLong("endDate", habit.getEndDateMillis());
         args.putStringArrayList("reminderTimes", new ArrayList<>(habit.getReminderTimes()));
         dialog.setArguments(args);
 

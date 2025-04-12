@@ -357,8 +357,8 @@ public class AddHabitDialogFragment extends DialogFragment {
                     repeatUnit,
                     every,
                     selectedWeekdays,
-                    startDate,
-                    endDate,
+                    startDate.getTimeInMillis(),
+                    endDate.getTimeInMillis(),
                     reminderTimes
             );
 
