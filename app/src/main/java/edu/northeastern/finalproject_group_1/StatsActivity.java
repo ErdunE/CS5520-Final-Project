@@ -3,7 +3,9 @@ package edu.northeastern.finalproject_group_1;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -13,36 +15,66 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.github.mikephil.charting.charts.BarChart;
-import com.github.mikephil.charting.components.XAxis;
-import com.github.mikephil.charting.components.YAxis;
-import com.github.mikephil.charting.data.BarData;
-import com.github.mikephil.charting.data.BarDataSet;
-import com.github.mikephil.charting.data.BarEntry;
-import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
 public class StatsActivity extends AppCompatActivity {
 
-    private TextView usernameTV, goldTV, totalHabitsTV, currentStreakTV, longestStreakTV, completedHabitsTV, levelTV;
-    private BarChart barChart;
+    private TextView usernameTV, totalHabitsTV, currentStreakTV, longestStreakTV, completedHabitsTV, levelTV, xpProgressTV;
     private ProgressBar xpProgressBar;
-    private TextView playerName, playerLevel;
     private String currentUser;
     private ImageView levelBadge;
     private DatabaseReference habitsRef, gardenRef;
+    private BottomNavigationView bottomNavigationView;
+    private FloatingActionButton fab;
+    private LinearLayout achievementIconsLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_stats);
+
+        bottomNavigationView = findViewById(R.id.bottomNavigationView);
+        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                int itemId = item.getItemId();
+
+                if (itemId == R.id.Shop) {
+                    startActivity(new Intent(StatsActivity.this, MarketplaceActivity.class));
+                    return true;
+                } else if (itemId == R.id.Challenges) {
+                    startActivity(new Intent(StatsActivity.this, ChallengesActivity.class));
+                    return true;
+                } else if (itemId == R.id.Stats) {
+                    startActivity(new Intent(StatsActivity.this, StatsActivity.class));
+                    return true;
+                } else if (itemId == R.id.Settings) {
+                    startActivity(new Intent(StatsActivity.this, SettingsActivity.class));
+                    return true;
+                }
+                return false;
+            }
+        });
+
+        fab = findViewById(R.id.fab);
+
+        // Add button Click Listener
+//        fab.setOnClickListener(v -> {
+//            showAddHabitDialog();
+//        });
+
 
         // Retrieve username from Intent
         currentUser = getIntent().getStringExtra("USERNAME");
@@ -55,28 +87,75 @@ public class StatsActivity extends AppCompatActivity {
         currentStreakTV = findViewById(R.id.currentStreakTV);
         longestStreakTV = findViewById(R.id.longestStreakTV);
         completedHabitsTV = findViewById(R.id.completedHabitsTV);
-        barChart = findViewById(R.id.barChart);
+
         xpProgressBar = findViewById(R.id.xpProgressBar);
+        xpProgressTV = findViewById(R.id.xpProgressTV);
         levelBadge = findViewById(R.id.levelBadgeImage);
+        achievementIconsLayout = findViewById(R.id.achievementIconsLayout);
 
         gardenRef = FirebaseDatabase.getInstance().getReference("GARDENDATA").child(currentUser);
         habitsRef = FirebaseDatabase.getInstance().getReference("HABITS").child(currentUser);
 
         usernameTV.setText("Hi, " + currentUser);
+        updateLoginStreak();
         loadHabitStats();
-        setupBarChart();
+
+    }
+
+    private void updateLoginStreak() {
+        gardenRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                String today = LocalDate.now().toString();
+                String lastLogin = snapshot.child("lastLoginDate").getValue(String.class);
+                int streak = snapshot.child("streak").getValue(Integer.class) != null ? snapshot.child("streak").getValue(Integer.class) : 0;
+                int longestStreak = snapshot.child("longestStreak").getValue(Integer.class) != null ? snapshot.child("longestStreak").getValue(Integer.class) : 0;
+
+                if (lastLogin == null) {
+                    gardenRef.child("lastLoginDate").setValue(today);
+                    gardenRef.child("streak").setValue(1);
+                    gardenRef.child("longestStreak").setValue(1);
+                    currentStreakTV.setText("1");
+                    longestStreakTV.setText("1");
+                } else {
+                    LocalDate todayDate = LocalDate.parse(today);
+                    LocalDate lastLoginDate = LocalDate.parse(lastLogin);
+                    long daysBetween = ChronoUnit.DAYS.between(lastLoginDate, todayDate);
+
+                    if (daysBetween == 1) {
+                        streak++;
+                        longestStreak = Math.max(streak, longestStreak);
+                    } else if (daysBetween > 1) {
+                        streak = 1;
+                    }
+
+                    gardenRef.child("streak").setValue(streak);
+                    gardenRef.child("lastLoginDate").setValue(today);
+                    gardenRef.child("longestStreak").setValue(longestStreak);
+
+                    currentStreakTV.setText(String.valueOf(streak));
+                    longestStreakTV.setText(String.valueOf(longestStreak));
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(StatsActivity.this, "Error loading streak info", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void loadHabitStats() {
         habitsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 int total = 0;
                 int completed = 0;
                 for (DataSnapshot habitSnap : snapshot.getChildren()) {
-                    if (habitSnap.exists() && habitSnap.child("isCompleted").getValue() != null) {
+                    if (habitSnap.exists() && habitSnap.child("completed").getValue() != null) {
                         total++;
-                        boolean isCompleted = Boolean.TRUE.equals(habitSnap.child("isCompleted").getValue(Boolean.class));
+                        boolean isCompleted = Boolean.TRUE.equals(habitSnap.child("completed").getValue(Boolean.class));
                         if (isCompleted) completed++;
                     }
                 }
@@ -90,6 +169,7 @@ public class StatsActivity extends AppCompatActivity {
                 levelTV.setText("Level " + level);
                 xpProgressBar.setMax(500);
                 xpProgressBar.setProgress(progress);
+                xpProgressTV.setText(progress + " / 500 XP");
 
                 // Set badge based on level
                 if (level >= 10) {
@@ -99,44 +179,13 @@ public class StatsActivity extends AppCompatActivity {
                 } else if (level >= 0){
                     levelBadge.setImageResource(R.drawable.bronze_medal);
                 }
-
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {}
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(StatsActivity.this, "Failed to load habits", Toast.LENGTH_SHORT).show();
+            }
         });
     }
 
-    private void setupBarChart() {
-        List<BarEntry> entries = new ArrayList<>();
-        entries.add(new BarEntry(0, 3)); // Mon
-        entries.add(new BarEntry(1, 1)); // Tue
-        entries.add(new BarEntry(2, 4)); // Wed
-        entries.add(new BarEntry(3, 2)); // Thu
-        entries.add(new BarEntry(4, 3)); // Fri
-        entries.add(new BarEntry(5, 2)); // Sat
-        entries.add(new BarEntry(6, 5)); // Sun
-
-        BarDataSet dataSet = new BarDataSet(entries, "Habits Completed This Week");
-        dataSet.setColor(Color.parseColor("#679273"));
-
-        BarData barData = new BarData(dataSet);
-        barData.setBarWidth(0.9f);
-        barChart.setData(barData);
-        barChart.setFitBars(true);
-        barChart.getDescription().setEnabled(false);
-        barChart.getLegend().setEnabled(false);
-
-        XAxis xAxis = barChart.getXAxis();
-        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
-        xAxis.setValueFormatter(new IndexAxisValueFormatter(new String[]{"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"}));
-        xAxis.setGranularity(1f);
-        xAxis.setDrawGridLines(false);
-
-        YAxis leftAxis = barChart.getAxisLeft();
-        leftAxis.setGranularity(1f);
-        barChart.getAxisRight().setEnabled(false);
-
-        barChart.invalidate();
-    }
 }
