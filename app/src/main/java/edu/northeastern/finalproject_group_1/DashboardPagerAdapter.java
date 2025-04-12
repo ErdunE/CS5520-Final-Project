@@ -15,7 +15,7 @@ public class DashboardPagerAdapter extends FragmentStateAdapter {
         this.user = user;
         gardenFragment = new GardenFragment();
         //HabitListFragment habitListFragment = new HabitListFragment();
-        habitListFragment = HabitListFragment.newInstance(user);
+        habitListFragment = HabitListFragment.newInstance(user, gardenFragment);
     }
 
     @NonNull

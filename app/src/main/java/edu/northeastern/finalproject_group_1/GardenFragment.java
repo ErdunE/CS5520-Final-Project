@@ -50,9 +50,9 @@ public class GardenFragment extends Fragment {
         // The garden will start empty
     }
 
-    public void addNewPlant() {
+    public void addNewPlant(String habitName) {
         // Removing the limit check - allow unlimited plants
-        gardenView.addPlant("New Habit " + (gardenView.getPlantCount() + 1));
+        gardenView.addPlant(habitName);
         Toast.makeText(getContext(), "Added new plant!", Toast.LENGTH_SHORT).show();
 
         // Update the plant selector
@@ -79,9 +79,9 @@ public class GardenFragment extends Fragment {
         });
 
         // Set up add plant button
-        addPlantButton.setOnClickListener(v -> {
-            addNewPlant();
-        });
+//        addPlantButton.setOnClickListener(v -> {
+//            addNewPlant();
+//        });
     }
 
     private void updatePlantSelector() {
@@ -109,4 +109,5 @@ public class GardenFragment extends Fragment {
             gardenView.growPlantByHabitName(habitName);
         }
     }
+
 }

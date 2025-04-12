@@ -20,6 +20,7 @@ import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.database.ChildEventListener;
@@ -29,7 +30,11 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 public class HabitListFragment extends Fragment implements HabitAdapter.OnHabitCheckListener{
@@ -40,14 +45,17 @@ public class HabitListFragment extends Fragment implements HabitAdapter.OnHabitC
     private List<Habit> habitList;
     private String currentUser;
     private FirebaseDatabase db;
+    private int bank;
+    private GardenFragment gardenFragment;
 
     // Factory method to pass in username to habit list fragment so it can use it to search db
-    public static HabitListFragment newInstance(String user) {
+    public static HabitListFragment newInstance(String user, GardenFragment gardenFragment) {
         //Log.d("HabitListFragment", "Username passed in: " + user);
         HabitListFragment fragment = new HabitListFragment();
         Bundle args = new Bundle();
         args.putString("USERNAME", user);
         fragment.setArguments(args);
+        fragment.setGardenFragment(gardenFragment);
         return fragment;
     }
 
@@ -78,6 +86,13 @@ public class HabitListFragment extends Fragment implements HabitAdapter.OnHabitC
 
         habitRecyclerView = view.findViewById(R.id.habitRecyclerView);
         habitRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+
+        Log.d(TAG, gardenFragment.toString());
+//        gardenFragment = view.findViewById(R.id.gardenView);
+//        if (isNull(gardenView)) {
+//            Log.d(TAG, "Garden view is null from habit list fragment");
+//        }
 
         //create empty habit list in case user has no habits
         habitList = new ArrayList<>();
@@ -269,7 +284,24 @@ public class HabitListFragment extends Fragment implements HabitAdapter.OnHabitC
     public void onHabitCheckChanged(int fromPos, boolean isChecked) {
         Habit habit = habitList.get(fromPos);
         habit.setCompleted(isChecked);
-
+        //TODO: calling this updates the db value, BUT it breaks the sorting  - need to adjust something here
+        editHabit(habit);
+        int reward = habit.getReward();
+        //check if the habit has already been completed today, and award reward accordingly
+        LocalDate t = LocalDate.now();
+        Calendar c = Calendar.getInstance();
+        boolean completedToday = false;
+        if (habit.getLastCompletedMillis() != -1) { //-1 is case where habit hasn't been completed before
+            c.setTimeInMillis(habit.getLastCompletedMillis());
+            LocalDate l = LocalDate.of(c.get(c.YEAR), c.get(c.MONTH), c.get(c.DATE));
+            completedToday = (t == l);
+        }
+        if (!completedToday) {
+            //give user rewards
+            rewardUser(reward);
+            //trigger plant growth
+            gardenFragment.growPlantByHabit(habit.getHabitKey());
+        }
         habitList.remove(fromPos);
 
         int toPos;
@@ -290,11 +322,32 @@ public class HabitListFragment extends Fragment implements HabitAdapter.OnHabitC
         habitAdapter.notifyItemChanged(toPos);
     }
 
+    private void rewardUser(int reward) {
+        DatabaseReference user = db.getReference().child("GARDENDATA").child(currentUser).child("bank");
+        ValueEventListener bankListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                bank = snapshot.getValue(int.class);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        };
+        user.addValueEventListener(bankListener);
+        user.setValue(bank + reward);
+        Toast.makeText(getActivity().getApplicationContext(), "Added " + reward + "to your bank!", Toast.LENGTH_LONG).show();
+        user.removeEventListener(bankListener);
+    }
+
     public void addHabit(Habit newHabit) {
         //connect to db to add the habit:
         DatabaseReference dbHabits = db.getReference("HABITS");
         String key = dbHabits.child(currentUser).push().getKey();
         dbHabits.child(currentUser).child(key).setValue(newHabit);
+        gardenFragment.addNewPlant(key);
+
         //wondering if these are needed since this will trigger db listener?
 //        int insertPos = 0;
 //        while (insertPos < habitList.size() && !habitList.get(insertPos).isCompleted()) {
@@ -360,6 +413,10 @@ public class HabitListFragment extends Fragment implements HabitAdapter.OnHabitC
     public void onSaveInstanceState(@NonNull Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
         savedInstanceState.putString("currentUser", currentUser);
+    }
+
+    private void setGardenFragment(GardenFragment garden) {
+        this.gardenFragment = garden;
     }
 
 }

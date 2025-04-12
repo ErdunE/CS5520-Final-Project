@@ -186,6 +186,7 @@ public class DashboardActivity extends AppCompatActivity {
         Log.d("NewHabit", "Reminder Times: " + newHabit.getReminderTimes());
         Log.d("NewHabit", "Custom Icon URI: " + newHabit.getCustomIconUri());
         Log.d("NewHabit", "Color: " + newHabit.getCustomColor());
+        Log.d("NewHabit", "Last Completed: " + newHabit.getLastCompletedMillis());
 
         List<Calendar> timeCalendars = new ArrayList<>();
         for (String time : newHabit.getReminderTimes()) {
@@ -289,6 +290,7 @@ public class DashboardActivity extends AppCompatActivity {
         args.putLong("endDate", habit.getEndDateMillis());
         args.putStringArrayList("reminderTimes", new ArrayList<>(habit.getReminderTimes()));
         args.putString("habitKey", habit.getHabitKey());
+        args.putLong("lastCompletedDate", habit.getLastCompletedMillis());
         dialog.setArguments(args);
 
         dialog.show(getSupportFragmentManager(), "EditHabitDialog");

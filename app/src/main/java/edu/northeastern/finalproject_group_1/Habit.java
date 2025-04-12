@@ -14,7 +14,7 @@ public class Habit {
     private boolean isCompleted;
     private int iconResId;
     private String schedule;
-    private int reward;
+    private int reward = 50;
     private String customIconUri;
     private int customColor;
     private String repeatUnit;
@@ -26,15 +26,16 @@ public class Habit {
     private long endDateMillis;
     private List<String> reminderTimes;
     private String habitKey;
+    private long lastCompletedMillis = -1;
 
 
     public Habit() {}
 
-    public Habit(String title, String description, boolean isCompleted, int iconResId, String schedule, int reward, String customIconUri, int customColor, String repeatUnit, int every, List<Integer> weekdays,
-                 long startDate, long endDate, List<String> reminderTimes, String habitKey) {
+    public Habit(String title, String description, boolean completed, int iconResId, String schedule, int reward, String customIconUri, int customColor, String repeatUnit, int every, List<Integer> weekdays,
+                 long startDate, long endDate, List<String> reminderTimes, String habitKey, long lastCompletedDate) {
         this.title = title;
         this.description = description;
-        this.isCompleted = isCompleted;
+        this.isCompleted = completed;
         this.iconResId = iconResId;
         this.schedule = schedule;
         this.reward = reward;
@@ -47,15 +48,16 @@ public class Habit {
         this.endDateMillis = endDate;
         this.reminderTimes = reminderTimes;
         this.habitKey = habitKey;
+        this.lastCompletedMillis = lastCompletedDate;
     }
 
     public Habit(String title, String description, boolean completed, int iconResId, String repeatOption, int streak) {
-        this(title, description, completed, iconResId, repeatOption, streak, null, 0, "Daily", 1, new ArrayList<>(), -1, -1, null, null);
+        this(title, description, completed, iconResId, repeatOption, streak, null, 0, "Daily", 1, new ArrayList<>(), -1, -1, null, null, -1);
         Log.d("HABIT", String.valueOf(iconResId));
     }
 
     public Habit(String title, String description, boolean completed, int iconResId, String repeatOption, int streak, String customIconUri) {
-        this(title, description, completed, iconResId, repeatOption, streak, customIconUri, 0, "Daily", 1, new ArrayList<>(), -1, -1, null, null);
+        this(title, description, completed, iconResId, repeatOption, streak, customIconUri, 0, "Daily", 1, new ArrayList<>(), -1, -1, null, null, -1);
     }
 
     public String getTitle() { return title; }
@@ -125,5 +127,13 @@ public class Habit {
 
     public void setHabitKey(String habitKey) {
         this.habitKey = habitKey;
+    }
+
+    public void setLastCompletedMillis(long lastCompletedMillis) {
+        this.lastCompletedMillis = lastCompletedMillis;
+    }
+
+    public long getLastCompletedMillis() {
+        return this.lastCompletedMillis;
     }
 }
