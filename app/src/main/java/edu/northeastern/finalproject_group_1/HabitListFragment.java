@@ -88,7 +88,7 @@ public class HabitListFragment extends Fragment implements HabitAdapter.OnHabitC
         habitRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
 
-        Log.d(TAG, gardenFragment.toString());
+        //Log.d(TAG, gardenFragment.toString());
 //        gardenFragment = view.findViewById(R.id.gardenView);
 //        if (isNull(gardenView)) {
 //            Log.d(TAG, "Garden view is null from habit list fragment");
@@ -252,9 +252,11 @@ public class HabitListFragment extends Fragment implements HabitAdapter.OnHabitC
                 for (DataSnapshot h: snapshot.getChildren()) {
                     Habit habit = h.getValue(Habit.class);
                     habit.setHabitKey(h.getKey());
-                    Log.d(TAG, "Habit key: " + habit.getHabitKey());
+                    Log.d(TAG, "Fetching habit: " + habit.getHabitKey());
                     //Log.d(TAG, habit.toString());
                     habitList.add(habit);
+                    //TODO: this adds new plants to the garden every time we reload the habit list. need it to happen once on login, and only update with new habits
+                    //gardenFragment.addNewPlant(h.getKey());
                 }
                 updateHabitList(habitList);
             }
@@ -291,16 +293,26 @@ public class HabitListFragment extends Fragment implements HabitAdapter.OnHabitC
         LocalDate t = LocalDate.now();
         Calendar c = Calendar.getInstance();
         boolean completedToday = false;
-        if (habit.getLastCompletedMillis() != -1) { //-1 is case where habit hasn't been completed before
+        if ((isChecked) && (habit.getLastCompletedMillis() != -1)) { //-1 is case where habit hasn't been completed before
             c.setTimeInMillis(habit.getLastCompletedMillis());
-            LocalDate l = LocalDate.of(c.get(c.YEAR), c.get(c.MONTH), c.get(c.DATE));
-            completedToday = (t == l);
+            //Log.d(TAG, "Month: " + c.get(c.MONTH));
+            LocalDate l = LocalDate.of(c.get(c.YEAR), c.get(c.MONTH) + 1, c.get(c.DATE));
+            //Log.d(TAG, "Local date: " + t);
+            //Log.d(TAG, "Last date: " + l);
+            completedToday = (t.isEqual(l));
+            //Log.d(TAG, "Habit completed already today: " + completedToday);
         }
-        if (!completedToday) {
+        if ((!completedToday)&&isChecked) {
             //give user rewards
             rewardUser(reward);
             //trigger plant growth
             gardenFragment.growPlantByHabit(habit.getHabitKey());
+            //increase totalCompleted
+            int completed = habit.getTotalCompleted();
+            habit.setTotalCompleted(completed + 1);
+            //set lastCompleted to now
+            habit.setLastCompletedMillis(c.getTimeInMillis());
+            editHabit(habit);
         }
         habitList.remove(fromPos);
 
@@ -413,6 +425,7 @@ public class HabitListFragment extends Fragment implements HabitAdapter.OnHabitC
     public void onSaveInstanceState(@NonNull Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
         savedInstanceState.putString("currentUser", currentUser);
+        //savedInstanceState.putParcelableArrayList("habitlist",habitList);
     }
 
     private void setGardenFragment(GardenFragment garden) {
