@@ -65,6 +65,7 @@ public class AddHabitDialogFragment extends DialogFragment {
     private String habitKey;
     private long lastCompleted = -1;
     private int reward = 50;
+    private int totalCompleted = 0;
     private int selectedColor = Color.BLACK;
     private LinearLayout reminderTimeList;
 
@@ -88,6 +89,7 @@ public class AddHabitDialogFragment extends DialogFragment {
             oldDescription = getArguments().getString("description", "");
             habitKey = getArguments().getString("habitKey",null);
             lastCompleted = getArguments().getLong("lastCompletedDate");
+            totalCompleted = getArguments().getInt("totalCompleted");
 
         }
 
@@ -367,7 +369,8 @@ public class AddHabitDialogFragment extends DialogFragment {
                     endDate.getTimeInMillis(),
                     reminderTimes,
                     habitKey,
-                    lastCompleted
+                    lastCompleted,
+                    totalCompleted
             );
 
             if (isEditMode) {

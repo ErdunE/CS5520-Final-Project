@@ -27,12 +27,13 @@ public class Habit {
     private List<String> reminderTimes;
     private String habitKey;
     private long lastCompletedMillis = -1;
+    private int totalCompleted;
 
 
     public Habit() {}
 
     public Habit(String title, String description, boolean completed, int iconResId, String schedule, int reward, String customIconUri, int customColor, String repeatUnit, int every, List<Integer> weekdays,
-                 long startDate, long endDate, List<String> reminderTimes, String habitKey, long lastCompletedDate) {
+                 long startDate, long endDate, List<String> reminderTimes, String habitKey, long lastCompletedDate, int totalCompleted) {
         this.title = title;
         this.description = description;
         this.isCompleted = completed;
@@ -49,15 +50,15 @@ public class Habit {
         this.reminderTimes = reminderTimes;
         this.habitKey = habitKey;
         this.lastCompletedMillis = lastCompletedDate;
+        this.totalCompleted = totalCompleted;
     }
 
     public Habit(String title, String description, boolean completed, int iconResId, String repeatOption, int streak) {
-        this(title, description, completed, iconResId, repeatOption, streak, null, 0, "Daily", 1, new ArrayList<>(), -1, -1, null, null, -1);
-        Log.d("HABIT", String.valueOf(iconResId));
+        this(title, description, completed, iconResId, repeatOption, streak, null, 0, "Daily", 1, new ArrayList<>(), -1, -1, null, null, -1, 0);
     }
 
     public Habit(String title, String description, boolean completed, int iconResId, String repeatOption, int streak, String customIconUri) {
-        this(title, description, completed, iconResId, repeatOption, streak, customIconUri, 0, "Daily", 1, new ArrayList<>(), -1, -1, null, null, -1);
+        this(title, description, completed, iconResId, repeatOption, streak, customIconUri, 0, "Daily", 1, new ArrayList<>(), -1, -1, null, null, -1, 0);
     }
 
     public String getTitle() { return title; }
@@ -136,4 +137,13 @@ public class Habit {
     public long getLastCompletedMillis() {
         return this.lastCompletedMillis;
     }
+
+    public int getTotalCompleted() {
+        return this.totalCompleted;
+    }
+
+    public void setTotalCompleted(int totalCompleted) {
+        this.totalCompleted = totalCompleted;
+    }
+
 }
