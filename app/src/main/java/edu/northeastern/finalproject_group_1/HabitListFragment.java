@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -42,6 +43,7 @@ public class HabitListFragment extends Fragment implements HabitAdapter.OnHabitC
     public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
+        Log.d("HabitListFragment", "onCreateView called");
         return inflater.inflate(R.layout.fragment_habit_list, container, false);
     }
 
@@ -49,19 +51,20 @@ public class HabitListFragment extends Fragment implements HabitAdapter.OnHabitC
     public void onViewCreated(@NonNull View view,
                               @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
+        Log.d("HabitListFragment", "onViewCreated called");
         habitRecyclerView = view.findViewById(R.id.habitRecyclerView);
         habitRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        // Fake Data
-        habitList = new ArrayList<>();
-        habitList.add(new Habit("Drink Water", "Drink 8 glasses of water", false,
-                R.drawable.baseline_water_drop_24, "Daily", 10));
-        habitList.add(new Habit("Exercise", "30 minutes workout", false,
-                R.drawable.baseline_fitness_center_24, "Daily", 20));
+        if (habitList == null) {
+            Log.d("HabitListFragment", "habitList was null, initializing new list");
+            habitList = new ArrayList<>();
+        } else {
+            Log.d("HabitListFragment", "habitList already has " + habitList.size() + " items");
+        }
 
         habitAdapter = new HabitAdapter(habitList, this);
         habitRecyclerView.setAdapter(habitAdapter);
+        Log.d("HabitListFragment", "habitAdapter and recyclerView initialized");
 
         // Long press Helper
         ItemTouchHelper.Callback callback = new ItemTouchHelper.SimpleCallback(
@@ -76,6 +79,7 @@ public class HabitListFragment extends Fragment implements HabitAdapter.OnHabitC
                                   @NonNull RecyclerView.ViewHolder target) {
                 int fromPos = viewHolder.getAdapterPosition();
                 int toPos = target.getAdapterPosition();
+                Log.d("HabitListFragment", "Item moved from " + fromPos + " to " + toPos);
 
                 Habit fromHabit = habitList.get(fromPos);
                 habitList.remove(fromPos);
@@ -89,6 +93,7 @@ public class HabitListFragment extends Fragment implements HabitAdapter.OnHabitC
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
                 if (direction == ItemTouchHelper.LEFT) {
                     int position = viewHolder.getAdapterPosition();
+                    Log.d("HabitListFragment", "Item swiped at position: " + position);
                     showDeleteConfirmationDialog(position);
                 }
             }
@@ -157,6 +162,7 @@ public class HabitListFragment extends Fragment implements HabitAdapter.OnHabitC
 
     @Override
     public void onHabitCheckChanged(int fromPos, boolean isChecked) {
+        Log.d("HabitListFragment", "onHabitCheckChanged: " + fromPos + " checked = " + isChecked);
         Habit habit = habitList.get(fromPos);
         habit.setCompleted(isChecked);
 
@@ -181,12 +187,26 @@ public class HabitListFragment extends Fragment implements HabitAdapter.OnHabitC
     }
 
     public void addHabit(Habit newHabit) {
+        if (habitList == null) {
+            habitList = new ArrayList<>();
+            Log.d("HabitListFragment", "addHabit(): habitList was null, reinitialized");
+        }
+
+        if (habitAdapter == null) {
+            Log.d("HabitListFragment", "addHabit(): habitAdapter was null, creating new adapter");
+            habitAdapter = new HabitAdapter(habitList, this);
+            if (habitRecyclerView != null) {
+                habitRecyclerView.setAdapter(habitAdapter);
+            }
+        }
+
         int insertPos = 0;
         while (insertPos < habitList.size() && !habitList.get(insertPos).isCompleted()) {
             insertPos++;
         }
         habitList.add(insertPos, newHabit);
         habitAdapter.notifyItemInserted(insertPos);
+        Log.d("HabitListFragment", "addHabit(): inserted at position " + insertPos + " | Title: " + newHabit.getTitle());
     }
 
     public void updateHabit(int position, String newTitle, String newDescription) {
@@ -195,11 +215,13 @@ public class HabitListFragment extends Fragment implements HabitAdapter.OnHabitC
             habit.setTitle(newTitle);
             habit.setDescription(newDescription);
             habitAdapter.notifyItemChanged(position);
+            Log.d("HabitListFragment", "updateHabit(): updated at " + position);
         }
     }
 
     private void showDeleteConfirmationDialog(int position) {
         Habit habit = habitList.get(position);
+        Log.d("HabitListFragment", "showDeleteConfirmationDialog for: " + habit.getTitle());
 
         new AlertDialog.Builder(requireContext())
                 .setTitle("Delete Habit")
