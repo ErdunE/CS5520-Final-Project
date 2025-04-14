@@ -349,7 +349,7 @@ public class HabitListFragment extends Fragment implements HabitAdapter.OnHabitC
         };
         user.addValueEventListener(bankListener);
         user.setValue(bank + reward);
-        Toast.makeText(getActivity().getApplicationContext(), "Added " + reward + "to your bank!", Toast.LENGTH_LONG).show();
+        Toast.makeText(getActivity().getApplicationContext(), "Added " + reward + " to your bank!", Toast.LENGTH_LONG).show();
         user.removeEventListener(bankListener);
     }
 
@@ -389,11 +389,16 @@ public class HabitListFragment extends Fragment implements HabitAdapter.OnHabitC
 
     private void showDeleteConfirmationDialog(int position) {
         Habit habit = habitList.get(position);
+        String key = habit.getHabitKey();
 
         new AlertDialog.Builder(requireContext())
                 .setTitle("Delete Habit")
                 .setMessage("Are you sure you want to delete '" + habit.getTitle() + "'?")
                 .setPositiveButton("Delete", (dialog, which) -> {
+                    //delete from db:
+                    DatabaseReference habitRef = db.getReference().child("HABITS").child(currentUser);
+                    habitRef.child(key).removeValue();
+
                     habitList.remove(position);
                     habitAdapter.notifyItemRemoved(position);
                     ((DashboardActivity) requireActivity()).deleteHabitReminder(habit);
