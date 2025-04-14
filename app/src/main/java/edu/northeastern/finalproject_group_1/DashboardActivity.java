@@ -94,6 +94,8 @@ public class DashboardActivity extends AppCompatActivity {
         // Set viewpager orientation
         viewPager.setOrientation(ViewPager2.ORIENTATION_VERTICAL);
 
+        viewPager.setOffscreenPageLimit(2);
+
         // Set up bottom navigation
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override

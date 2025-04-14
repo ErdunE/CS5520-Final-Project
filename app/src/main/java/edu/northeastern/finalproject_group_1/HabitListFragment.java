@@ -375,6 +375,22 @@ public class HabitListFragment extends Fragment implements HabitAdapter.OnHabitC
             dbHabits.child(currentUser).child(updatedHabit.getHabitKey()).setValue(updatedHabit);
         } else {
             Log.d(TAG, "Trying to update a habit without a key");
+        if (habitList == null) {
+            habitList = new ArrayList<>();
+            Log.d("HabitListFragment", "addHabit(): habitList was null, reinitialized");
+        }
+
+        if (habitAdapter == null) {
+            Log.d("HabitListFragment", "addHabit(): habitAdapter was null, creating new adapter");
+            habitAdapter = new HabitAdapter(habitList, this);
+            if (habitRecyclerView != null) {
+                habitRecyclerView.setAdapter(habitAdapter);
+            }
+        }
+
+        int insertPos = 0;
+        while (insertPos < habitList.size() && !habitList.get(insertPos).isCompleted()) {
+            insertPos++;
         }
     }
 
