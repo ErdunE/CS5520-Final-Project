@@ -1,6 +1,7 @@
 package edu.northeastern.finalproject_group_1;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,11 +15,13 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 public class GardenFragment extends Fragment {
+    private final String TAG = "GardenFragment";
 
     private GardenView gardenView;
     private Spinner plantSelector;
     private Button testGrowButton;
     private Button addPlantButton;
+    private String currentUser;
 
     @Nullable
     @Override
@@ -46,8 +49,8 @@ public class GardenFragment extends Fragment {
     }
 
     private void setupGarden() {
-        // We're not adding initial plants anymore
-        // The garden will start empty
+        // Initialize plants for the user's habits
+        Log.d(TAG, "Creating garden for " + currentUser);
     }
 
     public void addNewPlant(String habitName) {
@@ -108,6 +111,10 @@ public class GardenFragment extends Fragment {
         if (gardenView != null) {
             gardenView.growPlantByHabitName(habitName);
         }
+    }
+
+    public void setUser(String user) {
+        this.currentUser = user;
     }
 
 }
