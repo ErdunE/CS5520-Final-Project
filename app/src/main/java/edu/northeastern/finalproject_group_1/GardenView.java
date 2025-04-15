@@ -161,6 +161,10 @@ public class GardenView extends View {
         return plants.size();
     }
 
+    public void resetPlants() {
+        plants = new ArrayList<>();
+    }
+
     // Inner class to represent a plant
     private class Plant {
         private float x;
@@ -290,5 +294,6 @@ public class GardenView extends View {
             // Restore the canvas to its previous state
             canvas.restore();
         }
+
     }
 }

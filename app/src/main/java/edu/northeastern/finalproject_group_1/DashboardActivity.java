@@ -293,6 +293,7 @@ public class DashboardActivity extends AppCompatActivity {
         args.putStringArrayList("reminderTimes", new ArrayList<>(habit.getReminderTimes()));
         args.putString("habitKey", habit.getHabitKey());
         args.putLong("lastCompletedDate", habit.getLastCompletedMillis());
+        args.putInt("totalCompleted", habit.getTotalCompleted());
         dialog.setArguments(args);
 
         dialog.show(getSupportFragmentManager(), "EditHabitDialog");

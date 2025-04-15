@@ -28,11 +28,13 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -213,50 +215,37 @@ public class HabitListFragment extends Fragment implements HabitAdapter.OnHabitC
         DatabaseReference dbHABITS = db.getReference("HABITS");
         //get habits just for current user
         DatabaseReference myHabits = dbHABITS.child(user);
-        /*myHabits.addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-                habitList = new ArrayList<>();
-                Habit habit = snapshot.getValue(Habit.class);
-                habit.setHabitKey(snapshot.getKey());
-                Log.d(TAG, habit.getHabitKey());
-                Log.d(TAG, habit.toString());
-                habitList.add(habit);
-                updateHabitList(habitList);
-            }
-
-            @Override
-            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-
-            }
-
-            @Override
-            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Log.e(TAG, "Error loading habits from db: " + error);
-            }
-        });*/
-        myHabits.addValueEventListener(new ValueEventListener() {
+        Query completedSort = myHabits.orderByChild("completed");
+        //use the query to sort completed tasks to the bottom of the list
+        completedSort.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 habitList = new ArrayList<>();
                 for (DataSnapshot h: snapshot.getChildren()) {
                     Habit habit = h.getValue(Habit.class);
                     habit.setHabitKey(h.getKey());
-                    Log.d(TAG, "Fetching habit: " + habit.getHabitKey());
+                    //Log.d(TAG, "Fetching habit: " + habit.getHabitKey());
                     //Log.d(TAG, habit.toString());
                     habitList.add(habit);
-                    //TODO: this adds new plants to the garden every time we reload the habit list. need it to happen once on login, and only update with new habits
-                    //gardenFragment.addNewPlant(h.getKey());
+                }
+                updateHabitList(habitList);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+        /*myHabits.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                habitList = new ArrayList<>();
+                for (DataSnapshot h: snapshot.getChildren()) {
+                    Habit habit = h.getValue(Habit.class);
+                    habit.setHabitKey(h.getKey());
+                    //Log.d(TAG, "Fetching habit: " + habit.getHabitKey());
+                    //Log.d(TAG, habit.toString());
+                    habitList.add(habit);
                 }
                 updateHabitList(habitList);
             }
@@ -265,7 +254,7 @@ public class HabitListFragment extends Fragment implements HabitAdapter.OnHabitC
             public void onCancelled(@NonNull DatabaseError error) {
                 Log.e(TAG, "Error loading habits from db: " + error);
             }
-        });
+        });*/
 
 
     }
@@ -286,8 +275,7 @@ public class HabitListFragment extends Fragment implements HabitAdapter.OnHabitC
     public void onHabitCheckChanged(int fromPos, boolean isChecked) {
         Habit habit = habitList.get(fromPos);
         habit.setCompleted(isChecked);
-        //TODO: calling this updates the db value, BUT it breaks the sorting  - need to adjust something here
-        editHabit(habit);
+        //editHabit(habit);
         int reward = habit.getReward();
         //check if the habit has already been completed today, and award reward accordingly
         LocalDate t = LocalDate.now();
@@ -311,7 +299,9 @@ public class HabitListFragment extends Fragment implements HabitAdapter.OnHabitC
             int completed = habit.getTotalCompleted();
             habit.setTotalCompleted(completed + 1);
             //set lastCompleted to now
-            habit.setLastCompletedMillis(c.getTimeInMillis());
+            Log.d(TAG, "old last completed millis: " + habit.getLastCompletedMillis());
+            habit.setLastCompletedMillis(System.currentTimeMillis());
+            Log.d(TAG, "new last completed millis: " + habit.getLastCompletedMillis());
             editHabit(habit);
         }
         habitList.remove(fromPos);
@@ -339,28 +329,40 @@ public class HabitListFragment extends Fragment implements HabitAdapter.OnHabitC
         ValueEventListener bankListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                bank = snapshot.getValue(int.class);
+                double balance = snapshot.getValue(double.class);
+                int bank = (int) balance;
+                int newBalance = bank + reward;
+                user.setValue(newBalance);
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-
+                Log.e(TAG, "Error reading user's bank" + error);
             }
         };
-        user.addValueEventListener(bankListener);
-        user.setValue(bank + reward);
-        Toast.makeText(getActivity().getApplicationContext(), "Added " + reward + " to your bank!", Toast.LENGTH_LONG).show();
+        user.addListenerForSingleValueEvent(bankListener);
+        Toast.makeText(getActivity().getApplicationContext(), "Added " + reward + " to your bank", Toast.LENGTH_LONG).show();
         user.removeEventListener(bankListener);
     }
-
     public void addHabit(Habit newHabit) {
         //connect to db to add the habit:
         DatabaseReference dbHabits = db.getReference("HABITS");
         String key = dbHabits.child(currentUser).push().getKey();
         dbHabits.child(currentUser).child(key).setValue(newHabit);
-        gardenFragment.addNewPlant(key);
+        //gardenFragment.addNewPlant(key);
 
         //wondering if these are needed since this will trigger db listener?
+//        if (habitList == null) {
+//            habitList = new ArrayList<>();
+//            Log.d("HabitListFragment", "addHabit(): habitList was null, reinitialized");
+//        }
+//
+//        if (habitAdapter == null) {
+//            Log.d("HabitListFragment", "addHabit(): habitAdapter was null, creating new adapter");
+//            habitAdapter = new HabitAdapter(habitList, this);
+//            if (habitRecyclerView != null) {
+//                habitRecyclerView.setAdapter(habitAdapter);
+//            }
 //        int insertPos = 0;
 //        while (insertPos < habitList.size() && !habitList.get(insertPos).isCompleted()) {
 //            insertPos++;
@@ -375,24 +377,7 @@ public class HabitListFragment extends Fragment implements HabitAdapter.OnHabitC
             dbHabits.child(currentUser).child(updatedHabit.getHabitKey()).setValue(updatedHabit);
         } else {
             Log.d(TAG, "Trying to update a habit without a key");
-            //artifacts from merging from dev (this was in the addHabit method)
-//        if (habitList == null) {
-//            habitList = new ArrayList<>();
-//            Log.d("HabitListFragment", "addHabit(): habitList was null, reinitialized");
-//        }
-//
-//        if (habitAdapter == null) {
-//            Log.d("HabitListFragment", "addHabit(): habitAdapter was null, creating new adapter");
-//            habitAdapter = new HabitAdapter(habitList, this);
-//            if (habitRecyclerView != null) {
-//                habitRecyclerView.setAdapter(habitAdapter);
-//            }
         }
-
-//        int insertPos = 0;
-//        while (insertPos < habitList.size() && !habitList.get(insertPos).isCompleted()) {
-//            insertPos++;
-//        }
     }
 
     public void updateHabit(int position, String newTitle, String newDescription) {
