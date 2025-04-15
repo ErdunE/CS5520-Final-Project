@@ -42,7 +42,7 @@ public class MarketplaceActivity extends AppCompatActivity {
     private DatabaseReference marketReference;
     private FirebaseDatabase fbDatabase;
     private int userGold = 0;
-    private String userId = "testUser1";
+    private String userId;
     private TextView goldBalance;
     BottomNavigationView bottomNavigationView;
     FloatingActionButton gardenButton;
@@ -54,6 +54,11 @@ public class MarketplaceActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_marketplace);
 
+        Intent parentIntent = getIntent();
+        if (parentIntent.hasExtra("USERNAME")) {
+            userId = parentIntent.getStringExtra("USERNAME");
+        }
+
         recyclerView = findViewById(R.id.recyclerViewInventory);
         goldBalance = findViewById(R.id.goldBalanceTV);
         gardenButton = findViewById(R.id.gardenButton);
@@ -61,6 +66,7 @@ public class MarketplaceActivity extends AppCompatActivity {
         // Setup garden FAB
         gardenButton.setOnClickListener(v -> {
                     Intent intent = new Intent(MarketplaceActivity.this, DashboardActivity.class);
+                    intent.putExtra("USERNAME", userId);
                     startActivity(intent);
         });
         updateGridSpan();

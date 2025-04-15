@@ -1,5 +1,7 @@
 package edu.northeastern.finalproject_group_1;
 
+import static java.util.Objects.isNull;
+
 import android.app.AlarmManager;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -8,7 +10,6 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.MenuItem;
-import android.view.View;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -16,7 +17,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -37,11 +37,14 @@ public class DashboardActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        //Storing current user from login
-        Intent loginIntent = getIntent();
-        if (loginIntent.hasExtra("USERNAME")) {
-            currentUser = loginIntent.getStringExtra("USERNAME");
+        if (savedInstanceState != null) {
+            this.currentUser = savedInstanceState.getString("currentUser");
+        } else {
+            //Storing current user from parent activity
+            Intent parentIntent = getIntent();
+            if (parentIntent.hasExtra("USERNAME")) {
+                currentUser = parentIntent.getStringExtra("USERNAME");
+            }
         }
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
@@ -74,7 +77,7 @@ public class DashboardActivity extends AppCompatActivity {
         });
 
         // Set up navigation
-        setupNavigation();
+        setupNavigation(currentUser);
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.statsTV), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -83,9 +86,9 @@ public class DashboardActivity extends AppCompatActivity {
         });
     }
 
-    private void setupNavigation() {
+    private void setupNavigation(String currentUser) {
         // Initialize viewpager and adapter
-        pagerAdapter = new DashboardPagerAdapter(this);
+        pagerAdapter = new DashboardPagerAdapter(this, currentUser);
         viewPager.setAdapter(pagerAdapter);
 
         // Set viewpager orientation
@@ -98,18 +101,26 @@ public class DashboardActivity extends AppCompatActivity {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 int itemId = item.getItemId();
-
+                //pass along username to child activities
                 if (itemId == R.id.Shop) {
-                    startActivity(new Intent(DashboardActivity.this, MarketplaceActivity.class));
+                    Intent intent = new Intent(DashboardActivity.this, MarketplaceActivity.class);
+                    intent.putExtra("USERNAME", currentUser);
+                    startActivity(intent);
                     return true;
                 } else if (itemId == R.id.Challenges) {
-                    startActivity(new Intent(DashboardActivity.this, ChallengesActivity.class));
+                    Intent intent = new Intent(DashboardActivity.this, ChallengesActivity.class);
+                    intent.putExtra("USERNAME", currentUser);
+                    startActivity(intent);
                     return true;
                 } else if (itemId == R.id.Stats) {
-                    startActivity(new Intent(DashboardActivity.this, StatsActivity.class));
+                    Intent intent = new Intent(DashboardActivity.this, StatsActivity.class);
+                    intent.putExtra("USERNAME", currentUser);
+                    startActivity(intent);
                     return true;
                 } else if (itemId == R.id.Settings) {
-                    startActivity(new Intent(DashboardActivity.this, SettingsActivity.class));
+                    Intent intent = new Intent(DashboardActivity.this, SettingsActivity.class);
+                    intent.putExtra("USERNAME", currentUser);
+                    startActivity(intent);
                     return true;
                 }
                 return false;
@@ -172,11 +183,12 @@ public class DashboardActivity extends AppCompatActivity {
         Log.d("NewHabit", "Repeat Unit: " + newHabit.getRepeatUnit());
         Log.d("NewHabit", "Every: " + newHabit.getEvery());
         Log.d("NewHabit", "Weekdays: " + newHabit.getWeekdays());
-        Log.d("NewHabit", "Start Date: " + (newHabit.getStartDate() != null ? newHabit.getStartDate().getTime().toString() : "null"));
-        Log.d("NewHabit", "End Date: " + (newHabit.getEndDate() != null ? newHabit.getEndDate().getTime().toString() : "null"));
+        //Log.d("NewHabit", "Start Date: " + (newHabit.getStartDateMillis() != null ? newHabit.getStartDateMillis() : "null"));
+        //Log.d("NewHabit", "End Date: " + (newHabit.getEndDate() != null ? newHabit.getEndDate().getTime().toString() : "null"));
         Log.d("NewHabit", "Reminder Times: " + newHabit.getReminderTimes());
         Log.d("NewHabit", "Custom Icon URI: " + newHabit.getCustomIconUri());
         Log.d("NewHabit", "Color: " + newHabit.getCustomColor());
+        Log.d("NewHabit", "Last Completed: " + newHabit.getLastCompletedMillis());
 
         List<Calendar> timeCalendars = new ArrayList<>();
         for (String time : newHabit.getReminderTimes()) {
@@ -192,10 +204,13 @@ public class DashboardActivity extends AppCompatActivity {
                 timeCalendars.add(cal);
             }
         }
-
+        Calendar cS = Calendar.getInstance();
+        cS.setTimeInMillis(newHabit.getStartDateMillis());
+        Calendar cE = Calendar.getInstance();
+        cE.setTimeInMillis(newHabit.getEndDateMillis());
         List<Calendar> reminderTimes = ReminderTimeGenerator.generateReminderTimes(
-                newHabit.getStartDate(),
-                newHabit.getEndDate(),
+                cS,
+                cE,
                 ReminderTimeGenerator.RepeatUnit.valueOf(newHabit.getRepeatUnit().toUpperCase()),
                 newHabit.getEvery(),
                 newHabit.getWeekdays(),
@@ -240,9 +255,13 @@ public class DashboardActivity extends AppCompatActivity {
             }
         }
 
+        Calendar start = Calendar.getInstance();
+        start.setTimeInMillis(habit.getStartDateMillis());
+        Calendar end = Calendar.getInstance();
+        end.setTimeInMillis(habit.getEndDateMillis());
         List<Calendar> reminderTimes = ReminderTimeGenerator.generateReminderTimes(
-                habit.getStartDate(),
-                habit.getEndDate(),
+                start,
+                end,
                 unit,
                 habit.getEvery(),
                 habit.getWeekdays(),
@@ -263,15 +282,18 @@ public class DashboardActivity extends AppCompatActivity {
         args.putInt("position", position);
         args.putString("title", habit.getTitle());
         args.putString("description", habit.getDescription());
-        args.putInt("iconResId", habit.getIcon());
+        args.putInt("iconResId", habit.getIconResId());
         args.putString("customIconUri", habit.getCustomIconUri());
         args.putInt("customColor", habit.getCustomColor());
         args.putString("repeatUnit", habit.getRepeatUnit());
         args.putInt("every", habit.getEvery());
         args.putIntegerArrayList("weekdays", new ArrayList<>(habit.getWeekdays()));
-        args.putLong("startDate", habit.getStartDate().getTimeInMillis());
-        args.putLong("endDate", habit.getEndDate().getTimeInMillis());
+        args.putLong("startDate", habit.getStartDateMillis());
+        args.putLong("endDate", habit.getEndDateMillis());
         args.putStringArrayList("reminderTimes", new ArrayList<>(habit.getReminderTimes()));
+        args.putString("habitKey", habit.getHabitKey());
+        args.putLong("lastCompletedDate", habit.getLastCompletedMillis());
+        args.putInt("totalCompleted", habit.getTotalCompleted());
         dialog.setArguments(args);
 
         dialog.show(getSupportFragmentManager(), "EditHabitDialog");
@@ -286,6 +308,10 @@ public class DashboardActivity extends AppCompatActivity {
             return;
         }
 
+        //update existing habit in db if the key is set
+        if (!isNull(updatedHabit.getHabitKey())) {
+            fragment.editHabit(updatedHabit);
+        }
         List<Habit> habitList = fragment.getHabitList();
         if (position >= 0 && position < habitList.size()) {
             Habit oldHabit = habitList.get(position);
@@ -297,5 +323,15 @@ public class DashboardActivity extends AppCompatActivity {
         } else {
             Log.w("DashboardActivity", "Invalid habit position: " + position);
         }
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString("currentUser", this.currentUser);
+    }
+
+    public String getCurrentUser() {
+        return this.currentUser;
     }
 }

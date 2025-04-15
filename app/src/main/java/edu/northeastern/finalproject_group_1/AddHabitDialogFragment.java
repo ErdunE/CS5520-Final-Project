@@ -62,6 +62,10 @@ public class AddHabitDialogFragment extends DialogFragment {
     private Button btnEndDate;
     private Calendar startDate = Calendar.getInstance();
     private Calendar endDate = Calendar.getInstance();
+    private String habitKey;
+    private long lastCompleted = -1;
+    private int reward = 50;
+    private int totalCompleted = 0;
     private int selectedColor = Color.BLACK;
     private LinearLayout reminderTimeList;
 
@@ -83,6 +87,10 @@ public class AddHabitDialogFragment extends DialogFragment {
             position = getArguments().getInt("position", -1);
             oldTitle = getArguments().getString("title", "");
             oldDescription = getArguments().getString("description", "");
+            habitKey = getArguments().getString("habitKey",null);
+            lastCompleted = getArguments().getLong("lastCompletedDate");
+            totalCompleted = getArguments().getInt("totalCompleted");
+
         }
 
         // Top controls
@@ -351,15 +359,18 @@ public class AddHabitDialogFragment extends DialogFragment {
                     false,
                     iconToUse,
                     repeatUnit,
-                    0,
+                    reward,
                     customUri,
                     selectedColor,
                     repeatUnit,
                     every,
                     selectedWeekdays,
-                    startDate,
-                    endDate,
-                    reminderTimes
+                    startDate.getTimeInMillis(),
+                    endDate.getTimeInMillis(),
+                    reminderTimes,
+                    habitKey,
+                    lastCompleted,
+                    totalCompleted
             );
 
             if (isEditMode) {

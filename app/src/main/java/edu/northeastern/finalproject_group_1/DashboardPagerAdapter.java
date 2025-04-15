@@ -7,10 +7,16 @@ import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 public class DashboardPagerAdapter extends FragmentStateAdapter {
 
-    private GardenFragment gardenFragment = new GardenFragment();
-    private HabitListFragment habitListFragment = new HabitListFragment();
-    public DashboardPagerAdapter(@NonNull FragmentActivity activity) {
+    private GardenFragment gardenFragment;
+    private HabitListFragment habitListFragment;
+    private String user;
+    public DashboardPagerAdapter(@NonNull FragmentActivity activity, String user) {
         super(activity);
+        this.user = user;
+        gardenFragment = new GardenFragment();
+        gardenFragment.setUser(user);
+        //HabitListFragment habitListFragment = new HabitListFragment();
+        habitListFragment = HabitListFragment.newInstance(user, gardenFragment);
     }
 
     @NonNull
