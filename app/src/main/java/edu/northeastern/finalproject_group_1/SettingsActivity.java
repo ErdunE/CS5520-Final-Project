@@ -34,6 +34,7 @@ public class SettingsActivity extends AppCompatActivity {
 
         RecyclerView recyclerView = findViewById(R.id.settingsRecyclerView);
         List<SettingOption> options = Arrays.asList(
+                new SettingOption(R.drawable.ic_settings_friends, "Friends List"),
                 new SettingOption(R.drawable.ic_settings_about, "About Habitend"),
                 new SettingOption(R.drawable.ic_settings_privacy, "Privacy & Terms"),
                 new SettingOption(R.drawable.ic_settings_log_out, "Log Out")
@@ -42,6 +43,9 @@ public class SettingsActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         SettingOptionAdapter adapter = new SettingOptionAdapter(options, option -> {
             switch (option.getTitle()) {
+                case "Friends List":
+                    startActivity(new Intent(SettingsActivity.this, FriendsListActivity.class));
+                    break;
                 case "About Habitend":
                     showAboutDialog();
                     break;

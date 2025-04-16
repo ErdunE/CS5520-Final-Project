@@ -8,6 +8,7 @@ import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 public class ReminderScheduler {
@@ -64,9 +65,14 @@ public class ReminderScheduler {
     }
 
     public static void updateReminders(Context context, Habit oldHabit, Habit newHabit) {
+
+        Calendar cS = Calendar.getInstance();
+        cS.setTimeInMillis(oldHabit.getStartDateMillis());
+        Calendar cE = Calendar.getInstance();
+        cE.setTimeInMillis(oldHabit.getEndDateMillis());
         List<Calendar> oldTimes = ReminderTimeGenerator.generateReminderTimes(
-                oldHabit.getStartDate(),
-                oldHabit.getEndDate(),
+                cS,
+                cE,
                 ReminderTimeGenerator.RepeatUnit.valueOf(oldHabit.getRepeatUnit().toUpperCase()),
                 oldHabit.getEvery(),
                 oldHabit.getWeekdays(),
@@ -74,9 +80,13 @@ public class ReminderScheduler {
         );
         cancelReminders(context, oldHabit.hashCode(), oldTimes);
 
+        Calendar cSN = Calendar.getInstance();
+        cS.setTimeInMillis(newHabit.getStartDateMillis());
+        Calendar cEN = Calendar.getInstance();
+        cE.setTimeInMillis(newHabit.getEndDateMillis());
         List<Calendar> newTimes = ReminderTimeGenerator.generateReminderTimes(
-                newHabit.getStartDate(),
-                newHabit.getEndDate(),
+                cSN,
+                cEN,
                 ReminderTimeGenerator.RepeatUnit.valueOf(newHabit.getRepeatUnit().toUpperCase()),
                 newHabit.getEvery(),
                 newHabit.getWeekdays(),

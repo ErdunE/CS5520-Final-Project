@@ -45,7 +45,7 @@ public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitViewHol
         if (habit.getCustomIconUri() != null) {
             holder.icon.setImageURI(Uri.parse(habit.getCustomIconUri()));
         } else {
-            holder.icon.setImageResource(habit.getIcon());
+            holder.icon.setImageResource(habit.getIconResId());
         }
 
         holder.icon.setColorFilter(habit.getCustomColor());
