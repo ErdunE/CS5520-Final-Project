@@ -55,6 +55,7 @@ public class StatsActivity extends AppCompatActivity {
         // Setup garden FAB
         gardenButton.setOnClickListener(v -> {
             Intent intent = new Intent(StatsActivity.this, DashboardActivity.class);
+            intent.putExtra("USERNAME", currentUser);
             startActivity(intent);
         });
 
@@ -66,16 +67,24 @@ public class StatsActivity extends AppCompatActivity {
                 int itemId = item.getItemId();
 
                 if (itemId == R.id.Shop) {
-                    startActivity(new Intent(StatsActivity.this, MarketplaceActivity.class));
+                    Intent intent = new Intent(StatsActivity.this, MarketplaceActivity.class);
+                    intent.putExtra("USERNAME", currentUser);
+                    startActivity(intent);
                     return true;
                 } else if (itemId == R.id.Challenges) {
-                    startActivity(new Intent(StatsActivity.this, ChallengesActivity.class));
+                    Intent intent = new Intent(StatsActivity.this, ChallengesActivity.class);
+                    intent.putExtra("USERNAME", currentUser);
+                    startActivity(intent);
                     return true;
                 } else if (itemId == R.id.Stats) {
-                    startActivity(new Intent(StatsActivity.this, StatsActivity.class));
+                    Intent intent = new Intent(StatsActivity.this, StatsActivity.class);
+                    intent.putExtra("USERNAME", currentUser);
+                    startActivity(intent);
                     return true;
                 } else if (itemId == R.id.Settings) {
-                    startActivity(new Intent(StatsActivity.this, SettingsActivity.class));
+                    Intent intent = new Intent(StatsActivity.this, SettingsActivity.class);
+                    intent.putExtra("USERNAME", currentUser);
+                    startActivity(intent);
                     return true;
                 }
                 return false;
