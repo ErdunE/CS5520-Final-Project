@@ -2,6 +2,7 @@ package edu.northeastern.finalproject_group_1;
 
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
@@ -82,7 +83,9 @@ public class MarketplaceActivity extends AppCompatActivity {
                     startActivity(new Intent(MarketplaceActivity.this, InventoryActivity.class));
                     return true;
                 } else if (itemId == R.id.Challenges) {
-                    startActivity(new Intent(MarketplaceActivity.this, ChallengesActivity.class));
+                    Intent intent = new Intent(MarketplaceActivity.this, ChallengesActivity.class);
+                    intent.putExtra("USERNAME", userId);
+                    startActivity(intent);
                     return true;
                 } else if (itemId == R.id.Stats) {
                     startActivity(new Intent(MarketplaceActivity.this, StatsActivity.class));
