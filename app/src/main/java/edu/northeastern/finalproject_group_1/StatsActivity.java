@@ -2,6 +2,7 @@ package edu.northeastern.finalproject_group_1;
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.icu.text.SimpleDateFormat;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.ImageView;
@@ -22,10 +23,16 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 public class StatsActivity extends AppCompatActivity {
 
@@ -33,11 +40,9 @@ public class StatsActivity extends AppCompatActivity {
     private ProgressBar xpProgressBar;
     private String currentUser;
     private ImageView levelBadge;
-    private DatabaseReference habitsRef, gardenRef;
+    private DatabaseReference habitsRef, statsRef;
     private BottomNavigationView bottomNavigationView;
-    private FloatingActionButton fab;
-    private LinearLayout achievementIconsLayout;
-    FloatingActionButton gardenButton;
+    private FloatingActionButton gardenButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,9 +98,8 @@ public class StatsActivity extends AppCompatActivity {
         xpProgressBar = findViewById(R.id.xpProgressBar);
         xpProgressTV = findViewById(R.id.xpProgressTV);
         levelBadge = findViewById(R.id.levelBadgeImage);
-        achievementIconsLayout = findViewById(R.id.achievementIconsLayout);
 
-        gardenRef = FirebaseDatabase.getInstance().getReference("GARDENDATA").child(currentUser);
+        statsRef = FirebaseDatabase.getInstance().getReference("GARDENDATA").child(currentUser);
         habitsRef = FirebaseDatabase.getInstance().getReference("HABITS").child(currentUser);
 
         usernameTV.setText("Hi, " + currentUser);
@@ -105,39 +109,61 @@ public class StatsActivity extends AppCompatActivity {
     }
 
     private void updateLoginStreak() {
-        gardenRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        statsRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                String today = LocalDate.now().toString();
-                String lastLogin = snapshot.child("lastLoginDate").getValue(String.class);
-                int streak = snapshot.child("streak").getValue(Integer.class) != null ? snapshot.child("streak").getValue(Integer.class) : 0;
-                int longestStreak = snapshot.child("longestStreak").getValue(Integer.class) != null ? snapshot.child("longestStreak").getValue(Integer.class) : 0;
+                String todayStr = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+                String lastLoginDate = snapshot.child("lastLoginDate").getValue(String.class);
+                Integer currentStreakVal = snapshot.child("currentStreak").getValue(Integer.class);
+                Integer longestStreakVal = snapshot.child("longestStreak").getValue(Integer.class);
 
-                if (lastLogin == null) {
-                    gardenRef.child("lastLoginDate").setValue(today);
-                    gardenRef.child("streak").setValue(1);
-                    gardenRef.child("longestStreak").setValue(1);
-                    currentStreakTV.setText("1");
-                    longestStreakTV.setText("1");
+                int currentStreak = (currentStreakVal != null) ? currentStreakVal : 0;
+                int longestStreak = (longestStreakVal != null) ? longestStreakVal : 0;
+
+                boolean updateStreak = false;
+
+                if (lastLoginDate == null) {
+                    currentStreak = 1;
+                    longestStreak = 1;
+
+                    Map<String, Object> newUserData = new HashMap<>();
+                    newUserData.put("lastLoginDate", todayStr);
+                    newUserData.put("currentStreak", currentStreak);
+                    newUserData.put("longestStreak", longestStreak);
+
+                    statsRef.updateChildren(newUserData);
                 } else {
-                    LocalDate todayDate = LocalDate.parse(today);
-                    LocalDate lastLoginDate = LocalDate.parse(lastLogin);
-                    long daysBetween = ChronoUnit.DAYS.between(lastLoginDate, todayDate);
+                    try {
+                        Date lastLogin = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(lastLoginDate);
+                        Calendar cal = Calendar.getInstance();
+                        cal.setTime(lastLogin);
+                        cal.add(Calendar.DATE, 1);
 
-                    if (daysBetween == 1) {
-                        streak++;
-                        longestStreak = Math.max(streak, longestStreak);
-                    } else if (daysBetween > 1) {
-                        streak = 1;
+                        String expectedLogin = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(cal.getTime());
+
+                        if (expectedLogin.equals(todayStr)) {
+                            currentStreak += 1;
+                            longestStreak = Math.max(currentStreak, longestStreak);
+                            updateStreak = true;
+                        } else if (!lastLoginDate.equals(todayStr)) {
+                            currentStreak = 1;
+                            updateStreak = true;
+                        }
+                    } catch (ParseException e) {
+                        e.printStackTrace();
                     }
 
-                    gardenRef.child("streak").setValue(streak);
-                    gardenRef.child("lastLoginDate").setValue(today);
-                    gardenRef.child("longestStreak").setValue(longestStreak);
-
-                    currentStreakTV.setText(String.valueOf(streak));
-                    longestStreakTV.setText(String.valueOf(longestStreak));
+                    if (updateStreak) {
+                        Map<String, Object> updates = new HashMap<>();
+                        updates.put("lastLoginDate", todayStr);
+                        updates.put("currentStreak", currentStreak);
+                        updates.put("longestStreak", longestStreak);
+                        statsRef.updateChildren(updates);
+                    }
                 }
+
+                currentStreakTV.setText(String.valueOf(currentStreak));
+                longestStreakTV.setText(String.valueOf(longestStreak));
             }
 
             @Override
