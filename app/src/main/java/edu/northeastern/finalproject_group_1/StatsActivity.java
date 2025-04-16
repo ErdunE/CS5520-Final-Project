@@ -23,16 +23,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.text.ParseException;
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 
 public class StatsActivity extends AppCompatActivity {
 
@@ -40,7 +30,7 @@ public class StatsActivity extends AppCompatActivity {
     private ProgressBar xpProgressBar;
     private String currentUser;
     private ImageView levelBadge;
-    private DatabaseReference habitsRef, statsRef;
+    private DatabaseReference habitsRef;
     private BottomNavigationView bottomNavigationView;
     private FloatingActionButton gardenButton;
 
@@ -108,7 +98,6 @@ public class StatsActivity extends AppCompatActivity {
         xpProgressTV = findViewById(R.id.xpProgressTV);
         levelBadge = findViewById(R.id.levelBadgeImage);
 
-        statsRef = FirebaseDatabase.getInstance().getReference("GARDENDATA").child(currentUser);
         habitsRef = FirebaseDatabase.getInstance().getReference("HABITS").child(currentUser);
 
         usernameTV.setText("Hi, " + currentUser);
