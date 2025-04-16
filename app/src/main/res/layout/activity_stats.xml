@@ -317,30 +317,29 @@
             android:layout_marginBottom="8dp"
             android:text="Achievements"
             android:textColor="#555"
-            android:textSize="16sp"
+            android:padding="12dp"
+            android:textSize="20sp"
             android:textStyle="bold" />
 
         <LinearLayout
-            android:id="@+id/achievementIconsLayout"
+            android:id="@+id/achievementsLayout"
             android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
             android:weightSum="3">
 
-            <ImageView
-                android:layout_width="72dp"
-                android:layout_height="72dp"
-                android:src="@drawable/gold_medal"
-                android:contentDescription="Gold Badge"
-                android:layout_weight="1" />
+            <TextView
+                android:id="@+id/noAchievementMessage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_marginTop="8dp"
+                android:textSize="14dp"
+                android:text="No achievements yet."
+                android:textColor="@android:color/darker_gray"
+                android:visibility="gone" />
 
-            <ImageView
-                android:layout_width="72dp"
-                android:layout_height="72dp"
-                android:src="@drawable/default_image"
-                android:contentDescription="Water Badge"
-                android:layout_weight="1" />
 
         </LinearLayout>
 

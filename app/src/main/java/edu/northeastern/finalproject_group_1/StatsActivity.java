@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.icu.text.SimpleDateFormat;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -26,11 +27,12 @@ import com.google.firebase.database.ValueEventListener;
 
 public class StatsActivity extends AppCompatActivity {
 
-    private TextView usernameTV, totalHabitsTV, currentStreakTV, longestStreakTV, completedHabitsTV, levelTV, xpProgressTV;
+    private TextView usernameTV, totalHabitsTV, currentStreakTV, longestStreakTV, completedHabitsTV, levelTV, xpProgressTV, noAchievementMessage;
     private ProgressBar xpProgressBar;
     private String currentUser;
     private ImageView levelBadge;
-    private DatabaseReference habitsRef;
+    private DatabaseReference habitsRef,gardenRef;
+    private LinearLayout achievementsLayout;
     private BottomNavigationView bottomNavigationView;
     private FloatingActionButton gardenButton;
 
@@ -97,7 +99,10 @@ public class StatsActivity extends AppCompatActivity {
         xpProgressBar = findViewById(R.id.xpProgressBar);
         xpProgressTV = findViewById(R.id.xpProgressTV);
         levelBadge = findViewById(R.id.levelBadgeImage);
+        achievementsLayout = findViewById(R.id.achievementsLayout);
+        noAchievementMessage = findViewById(R.id.noAchievementMessage);
 
+        gardenRef = FirebaseDatabase.getInstance().getReference("GARDENDATA").child(currentUser);
         habitsRef = FirebaseDatabase.getInstance().getReference("HABITS").child(currentUser);
 
         usernameTV.setText("Hi, " + currentUser);
@@ -114,6 +119,7 @@ public class StatsActivity extends AppCompatActivity {
                 int totalHabits = 0;
                 int completed= 0;
                 int totalCompletions = 0;
+                int achievementCount = 0;
 
                 for (DataSnapshot habitSnap : snapshot.getChildren()) {
                     totalHabits++;
@@ -126,9 +132,26 @@ public class StatsActivity extends AppCompatActivity {
 
                     // Sum totalCompleted values
                     Long completions = habitSnap.child("totalCompleted").getValue(Long.class);
+                    Integer iconId = habitSnap.child("iconResId").getValue(Integer.class);
+
                     if (completions != null) {
                         totalCompletions += completions.intValue();
+
+                        if (completions >= 5 && iconId != null) {
+                            ImageView icon = new ImageView(StatsActivity.this);
+                            icon.setLayoutParams(new LinearLayout.LayoutParams(150, 150));
+                            icon.setImageResource(iconId);
+                            achievementsLayout.addView(icon);
+                            achievementCount++;
+                        }
                     }
+                }
+
+                // Handle "no achievements"
+                if (achievementCount == 0) {
+                    noAchievementMessage.setVisibility(View.VISIBLE);
+                } else {
+                    noAchievementMessage.setVisibility(View.GONE);
                 }
 
                 int xp = totalCompletions * 100; // 100 XP per completed habit
