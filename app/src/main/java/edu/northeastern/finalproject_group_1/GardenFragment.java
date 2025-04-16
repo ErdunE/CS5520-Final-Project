@@ -5,10 +5,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.Spinner;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -27,9 +23,6 @@ public class GardenFragment extends Fragment {
     private final String TAG = "GardenFragment";
 
     private GardenView gardenView;
-    private Spinner plantSelector;
-    private Button testGrowButton;
-    private Button addPlantButton;
     private String currentUser;
     private FirebaseDatabase db;
 
@@ -47,24 +40,16 @@ public class GardenFragment extends Fragment {
 
         // Initialize views
         gardenView = view.findViewById(R.id.gardenView);
-        plantSelector = view.findViewById(R.id.plantSelector);
-        testGrowButton = view.findViewById(R.id.testGrowButton);
-        addPlantButton = view.findViewById(R.id.addPlantButton);
-
         db = FirebaseDatabase.getInstance();
 
         // Set up garden
         setupGarden();
-
-        // Set up test controls
-        //setupTestControls();
     }
 
     private void setupGarden() {
         // Initialize plants for the user's habits
         Log.d(TAG, "Creating garden for " + currentUser);
         getHabits(currentUser);
-
     }
 
     private void getHabits(String currentUser) {
@@ -113,57 +98,7 @@ public class GardenFragment extends Fragment {
     }
 
     public void addNewPlant(String habitName) {
-        // Removing the limit check - allow unlimited plants
         gardenView.addPlant(habitName);
-        //Toast.makeText(getContext(), "Added new plant!", Toast.LENGTH_SHORT).show();
-
-        // Update the plant selector
-        updatePlantSelector();
-    }
-
-    private void setupTestControls() {
-        // Initial setup of the plant selector
-        updatePlantSelector();
-
-        // Set up test grow button
-        testGrowButton.setOnClickListener(v -> {
-            int selectedPosition = plantSelector.getSelectedItemPosition();
-            if (selectedPosition >= 0 && selectedPosition < gardenView.getPlantCount()) {
-                gardenView.growPlant(selectedPosition);
-                Toast.makeText(getContext(),
-                        "Plant " + (selectedPosition + 1) + " grew!",
-                        Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(getContext(),
-                        "Please select a plant to grow",
-                        Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        // Set up add plant button
-//        addPlantButton.setOnClickListener(v -> {
-//            addNewPlant();
-//        });
-    }
-
-    private void updatePlantSelector() {
-        if (getContext() == null || gardenView == null) return;
-
-        // Create a list of plant names for the spinner
-        String[] plantItems = new String[gardenView.getPlantCount()];
-        for (int i = 0; i < gardenView.getPlantCount(); i++) {
-            plantItems[i] = "Plant " + (i + 1);
-        }
-
-        // Create adapter for spinner
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(
-                getContext(),
-                android.R.layout.simple_spinner_item,
-                plantItems);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
-        // Apply adapter to spinner
-        plantSelector.setAdapter(adapter);
     }
 
     public void growPlantByHabit(String habitName) {
@@ -175,5 +110,4 @@ public class GardenFragment extends Fragment {
     public void setUser(String user) {
         this.currentUser = user;
     }
-
 }

@@ -55,7 +55,9 @@ public class InventoryActivity extends AppCompatActivity {
                     startActivity(new Intent(InventoryActivity.this, MarketplaceActivity.class));
                     return true;
                 } else if (itemId == R.id.Challenges) {
-                    startActivity(new Intent(InventoryActivity.this, ChallengesActivity.class));
+                    Intent intent = new Intent(InventoryActivity.this, ChallengesActivity.class);
+                    intent.putExtra("USERNAME", userId);
+                    startActivity(intent);
                     return true;
                 } else if (itemId == R.id.Stats) {
                     startActivity(new Intent(InventoryActivity.this, StatsActivity.class));
