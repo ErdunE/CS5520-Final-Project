@@ -2,6 +2,7 @@ package edu.northeastern.finalproject_group_1;
 
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
