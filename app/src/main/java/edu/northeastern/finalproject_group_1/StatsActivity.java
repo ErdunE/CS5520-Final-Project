@@ -112,74 +112,9 @@ public class StatsActivity extends AppCompatActivity {
         habitsRef = FirebaseDatabase.getInstance().getReference("HABITS").child(currentUser);
 
         usernameTV.setText("Hi, " + currentUser);
-        updateLoginStreak();
+        loadStreakStats();
         loadHabitStats();
 
-    }
-
-    private void updateLoginStreak() {
-        statsRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                String todayStr = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
-                String lastLoginDate = snapshot.child("lastLoginDate").getValue(String.class);
-                Integer currentStreakVal = snapshot.child("currentStreak").getValue(Integer.class);
-                Integer longestStreakVal = snapshot.child("longestStreak").getValue(Integer.class);
-
-                int currentStreak = (currentStreakVal != null) ? currentStreakVal : 0;
-                int longestStreak = (longestStreakVal != null) ? longestStreakVal : 0;
-
-                boolean updateStreak = false;
-
-                if (lastLoginDate == null) {
-                    currentStreak = 1;
-                    longestStreak = 1;
-
-                    Map<String, Object> newUserData = new HashMap<>();
-                    newUserData.put("lastLoginDate", todayStr);
-                    newUserData.put("currentStreak", currentStreak);
-                    newUserData.put("longestStreak", longestStreak);
-
-                    statsRef.updateChildren(newUserData);
-                } else {
-                    try {
-                        Date lastLogin = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(lastLoginDate);
-                        Calendar cal = Calendar.getInstance();
-                        cal.setTime(lastLogin);
-                        cal.add(Calendar.DATE, 1);
-
-                        String expectedLogin = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(cal.getTime());
-
-                        if (expectedLogin.equals(todayStr)) {
-                            currentStreak += 1;
-                            longestStreak = Math.max(currentStreak, longestStreak);
-                            updateStreak = true;
-                        } else if (!lastLoginDate.equals(todayStr)) {
-                            currentStreak = 1;
-                            updateStreak = true;
-                        }
-                    } catch (ParseException e) {
-                        e.printStackTrace();
-                    }
-
-                    if (updateStreak) {
-                        Map<String, Object> updates = new HashMap<>();
-                        updates.put("lastLoginDate", todayStr);
-                        updates.put("currentStreak", currentStreak);
-                        updates.put("longestStreak", longestStreak);
-                        statsRef.updateChildren(updates);
-                    }
-                }
-
-                currentStreakTV.setText(String.valueOf(currentStreak));
-                longestStreakTV.setText(String.valueOf(longestStreak));
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(StatsActivity.this, "Error loading streak info", Toast.LENGTH_SHORT).show();
-            }
-        });
     }
 
     private void loadHabitStats() {
@@ -187,21 +122,31 @@ public class StatsActivity extends AppCompatActivity {
 
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                int total = 0;
-                int completed = 0;
+                int totalHabits = 0;
+                int completed= 0;
+                int totalCompletions = 0;
+
                 for (DataSnapshot habitSnap : snapshot.getChildren()) {
-                    if (habitSnap.exists() && habitSnap.child("completed").getValue() != null) {
-                        total++;
-                        boolean isCompleted = Boolean.TRUE.equals(habitSnap.child("completed").getValue(Boolean.class));
-                        if (isCompleted) completed++;
+                    totalHabits++;
+
+                    // Count "completed" habits
+                    Boolean isCompleted = habitSnap.child("completed").getValue(Boolean.class);
+                    if (Boolean.TRUE.equals(isCompleted)) {
+                        completed++;
+                    }
+
+                    // Sum totalCompleted values
+                    Long completions = habitSnap.child("totalCompleted").getValue(Long.class);
+                    if (completions != null) {
+                        totalCompletions += completions.intValue();
                     }
                 }
 
-                int xp = completed * 100; // 100 XP per completed habit
+                int xp = totalCompletions * 100; // 100 XP per completed habit
                 int level = xp / 500;     // 500 XP per level
                 int progress = xp % 500;
 
-                totalHabitsTV.setText(String.valueOf(total));
+                totalHabitsTV.setText(String.valueOf(totalHabits));
                 completedHabitsTV.setText("Habits Completed: " + completed);
                 levelTV.setText("Level " + level);
                 xpProgressBar.setMax(500);
@@ -213,7 +158,7 @@ public class StatsActivity extends AppCompatActivity {
                     levelBadge.setImageResource(R.drawable.gold_medal);
                 } else if (level >= 5) {
                     levelBadge.setImageResource(R.drawable.silver_medal);
-                } else if (level >= 0){
+                } else {
                     levelBadge.setImageResource(R.drawable.bronze_medal);
                 }
             }
@@ -224,5 +169,37 @@ public class StatsActivity extends AppCompatActivity {
             }
         });
     }
+
+    private void loadStreakStats() {
+        DatabaseReference statsRef = FirebaseDatabase.getInstance()
+                .getReference("GARDENDATA")
+                .child(currentUser);
+
+        statsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Integer currentStreak = snapshot.child("currentStreak").getValue(Integer.class);
+                Integer longestStreak = snapshot.child("longestStreak").getValue(Integer.class);
+
+                if (currentStreak != null) {
+                    currentStreakTV.setText(String.valueOf(currentStreak));
+                } else {
+                    currentStreakTV.setText("0");
+                }
+
+                if (longestStreak != null) {
+                    longestStreakTV.setText(String.valueOf(longestStreak));
+                } else {
+                    longestStreakTV.setText("0");
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(StatsActivity.this, "Failed to load streak data", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
 
 }
