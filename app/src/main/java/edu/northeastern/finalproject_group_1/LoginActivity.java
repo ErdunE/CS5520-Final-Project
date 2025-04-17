@@ -86,6 +86,16 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+    }
+
     private void logIn(String username) {
         Log.d(TAG, "Logging " + username + " in");
 
