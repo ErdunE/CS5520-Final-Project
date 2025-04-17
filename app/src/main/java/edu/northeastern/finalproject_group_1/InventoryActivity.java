@@ -124,6 +124,18 @@ public class InventoryActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString("currentUser", this.currentUser);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        this.currentUser = savedInstanceState.getString("currentUser");
+    }
+
     private void loadInventory() {
         inventoryRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override

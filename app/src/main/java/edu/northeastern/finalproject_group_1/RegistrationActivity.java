@@ -60,6 +60,21 @@ public class RegistrationActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+
+        super.onSaveInstanceState(outState);
+
+    }
+
+    @Override
+
+    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
+
+        super.onRestoreInstanceState(savedInstanceState);
+
+    }
+
     private void registerUser(String username) {
         if (isNull(username) || username.isEmpty()) {
             Toast.makeText(getApplicationContext(), "Please enter a username to register", Toast.LENGTH_SHORT).show();

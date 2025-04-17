@@ -331,6 +331,12 @@ public class DashboardActivity extends AppCompatActivity {
         outState.putString("currentUser", this.currentUser);
     }
 
+    @Override
+    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        this.currentUser = savedInstanceState.getString("currentUser");
+    }
+
     public String getCurrentUser() {
         return this.currentUser;
     }
