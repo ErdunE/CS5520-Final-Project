@@ -19,5 +19,6 @@
         android:id="@+id/habitRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:nestedScrollingEnabled="true"/>
+        android:layout_marginBottom="60dp"
+        android:nestedScrollingEnabled="true" />
 </LinearLayout>
