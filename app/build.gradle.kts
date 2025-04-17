@@ -52,4 +52,7 @@ dependencies {
     implementation("com.github.yalantis:ucrop:2.2.8-native")
     // Color Picker
     implementation("com.github.skydoves:colorpickerview:2.2.4")
+    //Bar chart
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
+
 }
