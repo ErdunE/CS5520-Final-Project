@@ -241,7 +241,7 @@ public class DashboardActivity extends AppCompatActivity {
         args.putInt("position", position);
         args.putString("title", habit.getTitle());
         args.putString("description", habit.getDescription());
-        args.putInt("iconResId", habit.getIconResId());
+        args.putString("iconName", habit.getIconName());
         args.putString("customIconUri", habit.getCustomIconUri());
         args.putInt("customColor", habit.getCustomColor());
         args.putString("repeatUnit", habit.getRepeatUnit());

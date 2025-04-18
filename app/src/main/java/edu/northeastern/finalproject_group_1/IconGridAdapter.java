@@ -10,17 +10,18 @@ import androidx.recyclerview.widget.RecyclerView;
 
 public class IconGridAdapter extends RecyclerView.Adapter<IconGridAdapter.IconViewHolder> {
 
-    private int[] iconResIds;
+    private String[] iconNames;
     private OnIconClickListener listener;
 
     public interface OnIconClickListener {
-        void onIconClicked(int iconResId);
+        void onIconClicked(String iconName);
     }
 
-    public IconGridAdapter(int[] iconResIds, OnIconClickListener listener) {
-        this.iconResIds = iconResIds;
+    public IconGridAdapter(String[] iconNames, OnIconClickListener listener) {
+        this.iconNames = iconNames;
         this.listener = listener;
     }
+
 
     @NonNull
     @Override
@@ -32,19 +33,21 @@ public class IconGridAdapter extends RecyclerView.Adapter<IconGridAdapter.IconVi
 
     @Override
     public void onBindViewHolder(@NonNull IconViewHolder holder, int position) {
-        int iconResId = iconResIds[position];
-        holder.iconImageView.setImageResource(iconResId);
+        String iconName = iconNames[position];
+        int resId = holder.itemView.getContext().getResources().getIdentifier(
+                iconName, "drawable", holder.itemView.getContext().getPackageName());
+        holder.iconImageView.setImageResource(resId);
 
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {
-                listener.onIconClicked(iconResId);
+                listener.onIconClicked(iconName);
             }
         });
     }
 
     @Override
     public int getItemCount() {
-        return iconResIds.length;
+        return iconNames.length;
     }
 
     static class IconViewHolder extends RecyclerView.ViewHolder {

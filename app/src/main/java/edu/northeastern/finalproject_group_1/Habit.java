@@ -12,7 +12,7 @@ public class Habit {
     private String title;
     private String description;
     private boolean isCompleted;
-    private int iconResId;
+    private String iconName;
     private String schedule;
     private int reward = 50;
     private String customIconUri;
@@ -32,12 +32,12 @@ public class Habit {
 
     public Habit() {}
 
-    public Habit(String title, String description, boolean completed, int iconResId, String schedule, int reward, String customIconUri, int customColor, String repeatUnit, int every, List<Integer> weekdays,
+    public Habit(String title, String description, boolean completed, String iconName, String schedule, int reward, String customIconUri, int customColor, String repeatUnit, int every, List<Integer> weekdays,
                  long startDate, long endDate, List<String> reminderTimes, String habitKey, long lastCompletedDate, int totalCompleted) {
         this.title = title;
         this.description = description;
         this.isCompleted = completed;
-        this.iconResId = iconResId;
+        this.iconName = iconName;
         this.schedule = schedule;
         this.reward = reward;
         this.customIconUri = customIconUri;
@@ -52,23 +52,15 @@ public class Habit {
         this.lastCompletedMillis = lastCompletedDate;
         this.totalCompleted = totalCompleted;
     }
-
-    public Habit(String title, String description, boolean completed, int iconResId, String repeatOption, int streak) {
-        this(title, description, completed, iconResId, repeatOption, streak, null, 0, "Daily", 1, new ArrayList<>(), -1, -1, null, null, -1, 0);
-    }
-
-    public Habit(String title, String description, boolean completed, int iconResId, String repeatOption, int streak, String customIconUri) {
-        this(title, description, completed, iconResId, repeatOption, streak, customIconUri, 0, "Daily", 1, new ArrayList<>(), -1, -1, null, null, -1, 0);
-    }
-
     public String getTitle() { return title; }
     public String getDescription() { return description; }
     public boolean isCompleted() { return isCompleted; }
-    public int getIconResId() {
-        return iconResId != 0 ? iconResId : IconData.getDefaultIcon();
+    public String getIconName() {
+        return iconName != null ? iconName : "ic_favorite";
     }
-    public void setIconResId(int iconResId) {
-        this.iconResId = iconResId;
+
+    public void setIconName(String iconName) {
+        this.iconName = iconName;
     }
     public String getSchedule() { return schedule; }
     public int getReward() { return reward; }

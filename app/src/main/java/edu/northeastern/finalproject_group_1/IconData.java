@@ -1,45 +1,64 @@
 package edu.northeastern.finalproject_group_1;
 
-import edu.northeastern.finalproject_group_1.R;
-
+import java.util.HashMap;
+import java.util.Map;
 public class IconData {
 
-    public static final int[] ICON_RES_IDS = {
-            R.drawable.ic_check,
-            R.drawable.ic_calendar,
-            R.drawable.ic_alarm,
-            R.drawable.ic_bedtime,
-            R.drawable.ic_restaurant,
-            R.drawable.ic_drink_water,
-            R.drawable.ic_running,
-            R.drawable.ic_book,
-            R.drawable.ic_edit,
-            R.drawable.ic_code,
-            R.drawable.ic_school,
-            R.drawable.ic_translate,
-            R.drawable.ic_psychology,
-            R.drawable.ic_fitness,
-            R.drawable.ic_spa,
-            R.drawable.ic_self_improvement,
-            R.drawable.ic_favorite,
-            R.drawable.ic_hospital,
-            R.drawable.ic_brush,
-            R.drawable.ic_music,
-            R.drawable.ic_mic,
-            R.drawable.ic_camera,
-            R.drawable.ic_palette,
-            R.drawable.ic_game,
-            R.drawable.ic_movie,
-            R.drawable.ic_social,
-            R.drawable.ic_chat,
-            R.drawable.ic_travel,
-            R.drawable.ic_park,
-            R.drawable.ic_eco
+    public static final String[] ICON_NAMES = {
+            "ic_check",
+            "ic_calendar",
+            "ic_alarm",
+            "ic_bedtime",
+            "ic_restaurant",
+            "ic_drink_water",
+            "ic_running",
+            "ic_book",
+            "ic_edit",
+            "ic_code",
+            "ic_school",
+            "ic_translate",
+            "ic_psychology",
+            "ic_fitness",
+            "ic_spa",
+            "ic_self_improvement",
+            "ic_favorite",
+            "ic_hospital",
+            "ic_brush",
+            "ic_music",
+            "ic_mic",
+            "ic_camera",
+            "ic_palette",
+            "ic_game",
+            "ic_movie",
+            "ic_social",
+            "ic_chat",
+            "ic_travel",
+            "ic_park",
+            "ic_eco"
     };
 
-    public static int getDefaultIcon() {
-        return R.drawable.ic_favorite;
+    private static final Map<String, Integer> ICON_NAME_TO_RES_ID = new HashMap<>();
+
+    static {
+        for (String name : ICON_NAMES) {
+            int resId = 0;
+            try {
+                resId = R.drawable.class.getField(name).getInt(null);
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            } catch (NoSuchFieldException e) {
+                throw new RuntimeException(e);
+            }
+            ICON_NAME_TO_RES_ID.put(name, resId);
+        }
+    }
+
+    public static int getResIdByName(String iconName) {
+        return ICON_NAME_TO_RES_ID.getOrDefault(iconName, R.drawable.ic_favorite);
     }
 
 
+    public static String getDefaultIconName() {
+        return "ic_favorite";
+    }
 }

@@ -175,11 +175,13 @@ public class ChallengesActivity extends AppCompatActivity {
             weekdays.add(Calendar.SATURDAY);
         }
 
+        String iconName = getResources().getResourceEntryName(iconResId);
+
         Habit newHabit = new Habit(
                 title,
                 description,
                 false, // not completed
-                iconResId,
+                iconName,
                 repeatUnit, // repeat schedule (daily, weekly)
                 50, // default reward points
                 null, // no custom icon
