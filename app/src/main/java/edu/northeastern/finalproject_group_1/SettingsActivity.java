@@ -3,9 +3,11 @@ package edu.northeastern.finalproject_group_1;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -13,10 +15,17 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 public class SettingsActivity extends AppCompatActivity {
+
+    private BottomNavigationView bottomNavigationView;
+    private FloatingActionButton gardenButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +48,47 @@ public class SettingsActivity extends AppCompatActivity {
                 new SettingOption(R.drawable.ic_settings_privacy, "Privacy & Terms"),
                 new SettingOption(R.drawable.ic_settings_log_out, "Log Out")
         );
+
+        gardenButton = findViewById(R.id.gardenButton);
+
+        // Setup garden FAB
+        gardenButton.setOnClickListener(v -> {
+            Intent intent = new Intent(SettingsActivity.this, DashboardActivity.class);
+            intent.putExtra("USERNAME", username);
+            startActivity(intent);
+        });
+
+
+        bottomNavigationView = findViewById(R.id.bottomNavigationView);
+        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                int itemId = item.getItemId();
+
+                if (itemId == R.id.Shop) {
+                    Intent intent = new Intent(SettingsActivity.this, MarketplaceActivity.class);
+                    intent.putExtra("USERNAME", username);
+                    startActivity(intent);
+                    return true;
+                } else if (itemId == R.id.Challenges) {
+                    Intent intent = new Intent(SettingsActivity.this, ChallengesActivity.class);
+                    intent.putExtra("USERNAME", username);
+                    startActivity(intent);
+                    return true;
+                } else if (itemId == R.id.Stats) {
+                    Intent intent = new Intent(SettingsActivity.this, StatsActivity.class);
+                    intent.putExtra("USERNAME", username);
+                    startActivity(intent);
+                    return true;
+                } else if (itemId == R.id.Settings) {
+                    Intent intent = new Intent(SettingsActivity.this, SettingsActivity.class);
+                    intent.putExtra("USERNAME", username);
+                    startActivity(intent);
+                    return true;
+                }
+                return false;
+            }
+        });
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         SettingOptionAdapter adapter = new SettingOptionAdapter(options, option -> {
