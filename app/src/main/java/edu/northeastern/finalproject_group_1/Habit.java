@@ -64,13 +64,17 @@ public class Habit {
     public String getTitle() { return title; }
     public String getDescription() { return description; }
     public boolean isCompleted() { return isCompleted; }
-    public int getIconResId() { return iconResId; }
+    public int getIconResId() {
+        return iconResId != 0 ? iconResId : IconData.getDefaultIcon();
+    }
     public void setIconResId(int iconResId) {
         this.iconResId = iconResId;
     }
     public String getSchedule() { return schedule; }
     public int getReward() { return reward; }
-    public String getCustomIconUri() { return customIconUri; }
+    public String getCustomIconUri() {
+        return (customIconUri != null && !customIconUri.isEmpty()) ? customIconUri : null;
+    }
     public int getCustomColor() { return customColor; }
 
     public void setTitle(String title) { this.title = title; }

@@ -3,6 +3,7 @@ package edu.northeastern.finalproject_group_1;
 import android.content.Context;
 import android.graphics.Color;
 import android.net.Uri;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -41,6 +42,19 @@ public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitViewHol
 
         holder.title.setText(habit.getTitle());
         holder.description.setText(habit.getDescription());
+
+        Log.d("HabitAdapter", "Binding habit at position " + position + ": " + habit.getTitle());
+        Log.d("HabitAdapter", "→ iconResId = " + habit.getIconResId());
+        Log.d("HabitAdapter", "→ customIconUri = " + habit.getCustomIconUri());
+        Log.d("HabitAdapter", "→ color = " + habit.getCustomColor());
+
+        try {
+            String iconName = holder.itemView.getContext().getResources()
+                    .getResourceEntryName(habit.getIconResId());
+            Log.d("HabitAdapter", "→ icon name = " + iconName);
+        } catch (Exception e) {
+            Log.e("HabitAdapter", "iconResId invalid: " + habit.getIconResId(), e);
+        }
 
         if (habit.getCustomIconUri() != null) {
             holder.icon.setImageURI(Uri.parse(habit.getCustomIconUri()));

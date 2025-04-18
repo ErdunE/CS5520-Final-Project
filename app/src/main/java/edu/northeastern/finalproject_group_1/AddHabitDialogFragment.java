@@ -20,6 +20,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.fragment.app.DialogFragment;
+
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -353,6 +355,16 @@ public class AddHabitDialogFragment extends DialogFragment {
                 }
             }
 
+            Log.d("AddHabitDialog", "Creating habit...");
+            Log.d("AddHabitDialog", "→ iconResId = " + iconToUse);
+            try {
+                String iconName = requireContext().getResources().getResourceEntryName(iconToUse);
+                Log.d("AddHabitDialog", "→ icon name = " + iconName);
+            } catch (Exception e) {
+                Log.e("AddHabitDialog", "iconResId invalid: " + iconToUse, e);
+            }
+            Log.d("AddHabitDialog", "→ customIconUri = " + customUri);
+            Log.d("AddHabitDialog", "→ color = " + selectedColor);
             Habit habit = new Habit(
                     newTitle,
                     newDescription,

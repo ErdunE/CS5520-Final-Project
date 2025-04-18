@@ -126,47 +126,6 @@ public class DashboardActivity extends AppCompatActivity {
                 return false;
             }
         });
-
-        // There was added by Alp for add new plants, but after discussed we decide use the add button for add new habits, just in case, left the old code right there, but need to be cleaned before final submission
-//        // Set up FAB to add new plants when in garden view
-//        fab.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                // Check if we're in the garden view (position 0)
-//                if (viewPager.getCurrentItem() == 0) {
-//                    // Get current fragment
-//                    Fragment currentFragment = getSupportFragmentManager()
-//                            .findFragmentByTag("f" + viewPager.getCurrentItem());
-//
-//                    if (currentFragment instanceof GardenFragment) {
-//                        ((GardenFragment) currentFragment).addNewPlant();
-//                    }
-//                }
-//            }
-//        });
-
-        // Test code for reminder, current + per 10s
-        String[] testHabitTitles = {
-                "Drink Water", "Workout", "Read Books", "Meditate"
-        };
-
-        for (int i = 0; i < testHabitTitles.length; i++) {
-            Calendar testTime = Calendar.getInstance();
-            testTime.add(Calendar.SECOND, 10 * (i + 1));
-
-            String habitTitle = testHabitTitles[i];
-            String message = ReminderMessagePool.getRandomMessage(habitTitle);
-
-            List<Calendar> testTimes = new ArrayList<>();
-            testTimes.add(testTime);
-
-            ReminderScheduler.scheduleReminders(
-                    DashboardActivity.this,
-                    900 + i,
-                    habitTitle,
-                    testTimes
-            );
-        }
     }
 
     // Pop up dialog after click add button
