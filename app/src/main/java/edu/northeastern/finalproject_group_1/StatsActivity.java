@@ -132,17 +132,20 @@ public class StatsActivity extends AppCompatActivity {
 
                     // Sum totalCompleted values
                     Long completions = habitSnap.child("totalCompleted").getValue(Long.class);
-                    Integer iconId = habitSnap.child("iconResId").getValue(Integer.class);
+                    String iconName = habitSnap.child("iconName").getValue(String.class);
 
                     if (completions != null) {
                         totalCompletions += completions.intValue();
 
-                        if (completions >= 5 && iconId != null) {
-                            ImageView icon = new ImageView(StatsActivity.this);
-                            icon.setLayoutParams(new LinearLayout.LayoutParams(150, 150));
-                            icon.setImageResource(iconId);
-                            achievementsLayout.addView(icon);
-                            achievementCount++;
+                        if (completions >= 5 && iconName != null && !iconName.isEmpty()) {
+                            int resId = getResources().getIdentifier(iconName, "drawable", getPackageName());
+                            if (resId != 0) {
+                                ImageView icon = new ImageView(StatsActivity.this);
+                                icon.setLayoutParams(new LinearLayout.LayoutParams(150, 150));
+                                icon.setImageResource(resId);
+                                achievementsLayout.addView(icon);
+                                achievementCount++;
+                            }
                         }
                     }
                 }
