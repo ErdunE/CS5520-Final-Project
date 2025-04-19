@@ -12,10 +12,10 @@
     <ImageView
         android:id="@+id/marketplaceRoof"
         android:layout_width="match_parent"
-        android:layout_height="150dp"
+        android:layout_height="80dp"
         android:adjustViewBounds="true"
         android:contentDescription="Marketplace Roof"
-        android:scaleType="fitCenter"
+        android:scaleType="fitXY"
         android:src="@drawable/store" />
 
     <TextView

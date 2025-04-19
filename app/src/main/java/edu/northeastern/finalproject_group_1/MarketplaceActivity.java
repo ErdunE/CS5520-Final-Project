@@ -80,7 +80,9 @@ public class MarketplaceActivity extends AppCompatActivity {
                 int itemId = item.getItemId();
 
                 if (itemId == R.id.Inventory) {
-                    startActivity(new Intent(MarketplaceActivity.this, InventoryActivity.class));
+                    Intent intent = new Intent(MarketplaceActivity.this, InventoryActivity.class);
+                    intent.putExtra("USERNAME", userId);
+                    startActivity(intent);
                     return true;
                 } else if (itemId == R.id.Challenges) {
                     Intent intent = new Intent(MarketplaceActivity.this, ChallengesActivity.class);
@@ -88,10 +90,14 @@ public class MarketplaceActivity extends AppCompatActivity {
                     startActivity(intent);
                     return true;
                 } else if (itemId == R.id.Stats) {
-                    startActivity(new Intent(MarketplaceActivity.this, StatsActivity.class));
+                    Intent intent = new Intent(MarketplaceActivity.this,StatsActivity.class);
+                    intent.putExtra("USERNAME", userId);
+                    startActivity(intent);
                     return true;
                 } else if (itemId == R.id.Settings) {
-                    startActivity(new Intent(MarketplaceActivity.this, SettingsActivity.class));
+                    Intent intent = new Intent(MarketplaceActivity.this, SettingsActivity.class);
+                    intent.putExtra("USERNAME", userId);
+                    startActivity(intent);
                     return true;
                 }
                 return false;

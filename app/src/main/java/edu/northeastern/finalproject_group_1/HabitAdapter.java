@@ -3,6 +3,7 @@ package edu.northeastern.finalproject_group_1;
 import android.content.Context;
 import android.graphics.Color;
 import android.net.Uri;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,10 +43,22 @@ public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitViewHol
         holder.title.setText(habit.getTitle());
         holder.description.setText(habit.getDescription());
 
+        Log.d("HabitAdapter", "Binding habit at position " + position + ": " + habit.getTitle());
+        Log.d("HabitAdapter", "→ iconResId = " + habit.getIconName());
+        Log.d("HabitAdapter", "→ customIconUri = " + habit.getCustomIconUri());
+        Log.d("HabitAdapter", "→ color = " + habit.getCustomColor());
+
         if (habit.getCustomIconUri() != null) {
             holder.icon.setImageURI(Uri.parse(habit.getCustomIconUri()));
         } else {
-            holder.icon.setImageResource(habit.getIconResId());
+            Context context = holder.itemView.getContext();
+            int resId = context.getResources().getIdentifier(habit.getIconName(), "drawable", context.getPackageName());
+            if (resId != 0) {
+                holder.icon.setImageResource(resId);
+            } else {
+                Log.e("HabitAdapter", "Invalid icon name: " + habit.getIconName());
+                holder.icon.setImageResource(R.drawable.ic_favorite);
+            }
         }
 
         holder.icon.setColorFilter(habit.getCustomColor());

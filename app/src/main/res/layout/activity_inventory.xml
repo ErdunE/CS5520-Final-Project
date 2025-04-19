@@ -12,7 +12,7 @@
         android:layout_height="39dp"
         android:text=" Inventory"
         android:textAlignment="center"
-        android:textSize="16sp"
+        android:textSize="20dp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -25,7 +25,10 @@
         android:id="@+id/recyclerViewInventory"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:padding="8dp"
+        android:layout_marginBottom="32dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:padding="12dp"
         app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -68,11 +71,12 @@
 
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fab"
+            android:id="@+id/gardenButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:tint="@android:color/white"
             android:backgroundTint="#679273"
-            android:src="@drawable/baseline_add_24"
+            android:src="@drawable/garden"
             app:layout_anchor="@id/bottomAppBar"
             app:maxImageSize="40dp"
             app:shapeAppearanceOverlay="@style/icon_rounded" />

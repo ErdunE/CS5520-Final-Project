@@ -37,6 +37,9 @@ public class GardenFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        if (savedInstanceState != null) {
+            this.currentUser = savedInstanceState.getString("currentUser");
+        }
 
         // Initialize views
         gardenView = view.findViewById(R.id.gardenView);
@@ -44,6 +47,12 @@ public class GardenFragment extends Fragment {
 
         // Set up garden
         setupGarden();
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString("currentUser", this.currentUser);
     }
 
     private void setupGarden() {

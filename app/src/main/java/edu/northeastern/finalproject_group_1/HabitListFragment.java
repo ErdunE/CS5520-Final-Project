@@ -77,6 +77,8 @@ public class HabitListFragment extends Fragment implements HabitAdapter.OnHabitC
                              @Nullable Bundle savedInstanceState) {
         if (getArguments() != null) {
             currentUser = getArguments().getString("USERNAME", "");
+        } else if (savedInstanceState != null) {
+            currentUser = savedInstanceState.getString("currentUser");
         }
         return inflater.inflate(R.layout.fragment_habit_list, container, false);
     }
@@ -228,6 +230,7 @@ public class HabitListFragment extends Fragment implements HabitAdapter.OnHabitC
                     //Log.d(TAG, habit.toString());
                     habitList.add(habit);
                 }
+                Log.d(TAG, "habit list size: " + habitList.size());
                 updateHabitList(habitList);
             }
 
@@ -275,7 +278,9 @@ public class HabitListFragment extends Fragment implements HabitAdapter.OnHabitC
     public void onHabitCheckChanged(int fromPos, boolean isChecked) {
         Habit habit = habitList.get(fromPos);
         habit.setCompleted(isChecked);
-        //editHabit(habit);
+        if (!isChecked) {
+            editHabit(habit); //allow user to uncheck the habit, but don't do anything else
+        }
         int reward = habit.getReward();
         //check if the habit has already been completed today, and award reward accordingly
         LocalDate t = LocalDate.now();

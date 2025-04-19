@@ -20,6 +20,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.fragment.app.DialogFragment;
+
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -52,7 +54,7 @@ public class AddHabitDialogFragment extends DialogFragment {
     private int position = -1;
     private String oldTitle = "";
     private String oldDescription = "";
-    private int selectedIconResId = IconData.getDefaultIcon();
+    private String selectedIconName = IconData.getDefaultIconName();
     private static final int REQUEST_PICK_IMAGE = 1001;
     private static final int REQUEST_CROP_IMAGE = 1002;
     private ImageView iconPreviewImage;
@@ -138,7 +140,7 @@ public class AddHabitDialogFragment extends DialogFragment {
         iconCancelButton.setOnClickListener(v -> {
             iconPreviewImage.setImageDrawable(null);
             iconPreviewContainer.setVisibility(View.GONE);
-            selectedIconResId = -1;
+            croppedUri = null;
         });
 
         btnMoreColors.setOnClickListener(v -> {
@@ -213,17 +215,18 @@ public class AddHabitDialogFragment extends DialogFragment {
             titleEditText.setText(oldTitle);
             descriptionEditText.setText(oldDescription);
 
-            selectedIconResId = getArguments().getInt("iconResId", -1);
+            selectedIconName = getArguments().getString("iconName", IconData.getDefaultIconName());
             String customUriStr = getArguments().getString("customIconUri", null);
             selectedColor = getArguments().getInt("customColor", Color.BLACK);
 
-            if (selectedIconResId != -1) {
-                iconPreviewImage.setImageResource(selectedIconResId);
-                iconPreviewImage.setColorFilter(selectedColor);
-                iconPreviewContainer.setVisibility(View.VISIBLE);
-            } else if (customUriStr != null) {
+            if (customUriStr != null) {
                 croppedUri = Uri.parse(customUriStr);
                 iconPreviewImage.setImageURI(croppedUri);
+                iconPreviewContainer.setVisibility(View.VISIBLE);
+            } else {
+                int resId = IconData.getResIdByName(selectedIconName);
+                iconPreviewImage.setImageResource(resId);
+                iconPreviewImage.setColorFilter(selectedColor);
                 iconPreviewContainer.setVisibility(View.VISIBLE);
             }
 
@@ -321,14 +324,14 @@ public class AddHabitDialogFragment extends DialogFragment {
         btnSave.setOnClickListener(v -> {
             String newTitle = titleEditText.getText().toString().trim();
             String newDescription = descriptionEditText.getText().toString().trim();
-            String customUri = (selectedIconResId == -1 && croppedUri != null) ? croppedUri.toString() : null;
+            String customUri = (croppedUri != null) ? croppedUri.toString() : null;
 
             if (newTitle.isEmpty()) {
                 Toast.makeText(requireContext(), "Please enter a title", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            int iconToUse = (selectedIconResId != -1) ? selectedIconResId : IconData.getDefaultIcon();
+            int iconToUse = IconData.getResIdByName(selectedIconName);
             String repeatUnit = tvRepeatSelected.getText().toString();
             int every = Integer.parseInt(tvEveryValue.getText().toString());
 
@@ -353,11 +356,21 @@ public class AddHabitDialogFragment extends DialogFragment {
                 }
             }
 
+            Log.d("AddHabitDialog", "Creating habit...");
+            Log.d("AddHabitDialog", "→ iconResId = " + iconToUse);
+            try {
+                String iconName = requireContext().getResources().getResourceEntryName(iconToUse);
+                Log.d("AddHabitDialog", "→ icon name = " + iconName);
+            } catch (Exception e) {
+                Log.e("AddHabitDialog", "iconResId invalid: " + iconToUse, e);
+            }
+            Log.d("AddHabitDialog", "→ customIconUri = " + customUri);
+            Log.d("AddHabitDialog", "→ color = " + selectedColor);
             Habit habit = new Habit(
                     newTitle,
                     newDescription,
                     false,
-                    iconToUse,
+                    selectedIconName,
                     repeatUnit,
                     reward,
                     customUri,
@@ -464,9 +477,11 @@ public class AddHabitDialogFragment extends DialogFragment {
         RecyclerView recyclerView = sheetView.findViewById(R.id.iconRecyclerView);
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 4));
 
-        IconGridAdapter adapter = new IconGridAdapter(IconData.ICON_RES_IDS, iconResId -> {
-            selectedIconResId = iconResId;
-            iconPreviewImage.setImageResource(iconResId);
+        IconGridAdapter adapter = new IconGridAdapter(IconData.ICON_NAMES, iconName -> {
+            selectedIconName = iconName;
+            int resId = IconData.getResIdByName(iconName);
+            iconPreviewImage.setImageResource(resId);
+            iconPreviewImage.setColorFilter(selectedColor);
             iconPreviewContainer.setVisibility(View.VISIBLE);
             iconDialog.dismiss();
         });
@@ -506,8 +521,8 @@ public class AddHabitDialogFragment extends DialogFragment {
             croppedUri = UCrop.getOutput(data);
             if (croppedUri != null) {
                 iconPreviewImage.setImageURI(croppedUri);
+                iconPreviewImage.setColorFilter(selectedColor);
                 iconPreviewContainer.setVisibility(View.VISIBLE);
-                selectedIconResId = -1;
             }
         }
     }
